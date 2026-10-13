@@ -1,11 +1,15 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
-import { AppShell } from "@/components/layout/AppShell";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { RoleShell } from "@/components/layout/RoleShell";
+import { api } from "@/lib/api";
+import { useMe } from "@/hooks/useMe";
+import type { Prize, PrizesResponse, RouteApi, RoutesResponse } from "@/types/gamification";
 
 type StatusKind = "seguro" | "baixo" | "transito";
 
 type InventoryItem = {
+  id: string;
   name: string[];
   sku: string[];
   image: string;
@@ -35,84 +39,6 @@ type AuditEntry = {
   serverNote: string;
 };
 
-const INVENTORY: InventoryItem[] = [
-  {
-    name: ["Kit", "Souvenir", "Amazônia", "Viva"],
-    sku: ["SKU-AMZ-", "2024-001"],
-    image: "/icons/estoque-kit.png",
-    rota: ["Rota", "Histórica &", "Cultural"],
-    almox: "1.840",
-    postos: "960",
-    postosNote: ["8 CATs", "atendidos"],
-    saldo: "2.800",
-    saldoColor: "#002f19",
-    barColor: "#0d472b",
-    barFill: "22.01%",
-    status: "seguro",
-    statusLabel: ["Nível", "Seguro"],
-  },
-  {
-    name: ["Pin", "Esmaltado", "Cúpula", "Teatro"],
-    sku: ["SKU-COL-", "2024-042"],
-    image: "/icons/estoque-pin.png",
-    rota: ["Belle Époque", "Manaus"],
-    almox: "95",
-    postos: "135",
-    postosNote: ["Concentrado", "CAT 01"],
-    saldo: "230",
-    saldoColor: "#603100",
-    barColor: "#603100",
-    barFill: "85%",
-    status: "baixo",
-    statusLabel: ["Estoque", "Baixo"],
-  },
-  {
-    name: ["Garrafa", "Térmica", "Sustentável", "500ml"],
-    sku: ["SKU-ECO-", "2024-108"],
-    image: "/icons/estoque-garrafa.png",
-    rota: ["Trilhas do", "Encontro das", "Águas"],
-    almox: "1.450",
-    postos: "780",
-    postosNote: ["Distribuído 6", "CATs"],
-    saldo: "2.230",
-    saldoColor: "#002f19",
-    barColor: "#0d472b",
-    barFill: "35%",
-    status: "seguro",
-    statusLabel: ["Nível", "Seguro"],
-  },
-  {
-    name: ["Voucher", "Degustação", "Floresta"],
-    sku: ["SKU-GAS-", "2024-009"],
-    image: "/icons/estoque-voucher.png",
-    rota: ["Circuito", "Manaus", "Raízes"],
-    almox: "80",
-    postos: "110",
-    postosNote: ["Mercado", "Adolpho", "Lisboa"],
-    saldo: "190",
-    saldoColor: "#603100",
-    barColor: "#603100",
-    barFill: "88%",
-    status: "baixo",
-    statusLabel: ["Estoque", "Baixo"],
-  },
-  {
-    name: ["Medalha", "Oficial", "PassaNorte"],
-    sku: ["SKU-MED-", "2024-990"],
-    image: "/icons/estoque-medalha.png",
-    rota: ["Grande", "Conquistador", "Manaós"],
-    almox: "2.100",
-    postos: "900",
-    postosNote: ["Lote em", "Trânsito", "(+500)"],
-    saldo: "3.000",
-    saldoColor: "#002f19",
-    barColor: "#aed6fe",
-    barFill: "10%",
-    status: "transito",
-    statusLabel: ["Em", "Trânsito"],
-  },
-];
-
 const STATUS_BADGES: Record<StatusKind, { bg: string; dot: string; text: string }> = {
   seguro: { bg: "rgba(182,240,200,0.4)", dot: "#0d472b", text: "#195033" },
   baixo: { bg: "#ffdcc3", dot: "#603100", text: "#6e3900" },
@@ -125,57 +51,15 @@ const AUDIT_BADGES: Record<AuditKind, { bg: string; text: string; icon: string; 
   licitacao: { bg: "#b6f0c8", text: "#002110", icon: "/icons/estoque-badge-licitacao.svg", iconW: 10.5, iconH: 10.5, label: ["Entrada por", "Licitação"] },
 };
 
-const CAT_DISTRIBUTION = [
-  { label: "CAT 01 - Centro Histórico", value: "1.420 unid. (45%)", fill: "45%" },
-  { label: "CAT 02 - Aeroporto Intl.", value: "850 unid. (27%)", fill: "73%" },
-  { label: "CAT 03 - Ponta Negra", value: "510 unid. (16%)", fill: "84%" },
-];
+// Ponto de reposição (limiar local): abaixo disso o item entra em alerta.
+const LOW_STOCK_THRESHOLD = 100;
 
-const INITIAL_AUDIT: AuditEntry[] = [
-  {
-    date: "12/03/2025",
-    time: "15:42",
-    kind: "resgate",
-    item: "Kit Souvenir Amazônia Viva",
-    qty: "-1 unid.",
-    qtyColor: "#ba1a1a",
-    route: "CAT 01 → Turista (Passaporte #PN-94182)",
-    server: "Mariana S. Albuquerque",
-    serverNote: "Matrícula 219.401-2",
-  },
-  {
-    date: "12/03/2025",
-    time: "14:15",
-    kind: "transferencia",
-    item: "Garrafa Térmica Sustentável 500ml",
-    qty: "200 unid.",
-    qtyColor: "#396285",
-    route: "Almoxarifado Central → CAT 02 Aeroporto",
-    server: "Carlos Eduardo Ramos",
-    serverNote: "Coordenador Manauscult",
-  },
-  {
-    date: "11/03/2025",
-    time: "11:30",
-    kind: "licitacao",
-    item: "Medalha Oficial PassaNorte",
-    qty: "+1.200 unid.",
-    qtyColor: "#002f19",
-    route: "Metalúrgica Rio Negro Ltda → Almoxarifado",
-    server: "João Victor Fontes",
-    serverNote: "Inspetor de Patrimônio",
-  },
-  {
-    date: "11/03/2025",
-    time: "09:12",
-    kind: "resgate",
-    item: "Pin Esmaltado Cúpula Teatro",
-    qty: "-1 unid.",
-    qtyColor: "#ba1a1a",
-    route: "CAT 01 → Turista (Passaporte #PN-94101)",
-    server: "Mariana S. Albuquerque",
-    serverNote: "Matrícula 219.401-2",
-  },
+const ITEM_IMAGES = [
+  { match: /kit|souvenir/i, src: "/icons/estoque-kit.png" },
+  { match: /pin/i, src: "/icons/estoque-pin.png" },
+  { match: /garrafa|termica/i, src: "/icons/estoque-garrafa.png" },
+  { match: /voucher|degust/i, src: "/icons/estoque-voucher.png" },
+  { match: /medalha/i, src: "/icons/estoque-medalha.png" },
 ];
 
 function MultiLine({
@@ -199,19 +83,56 @@ function MultiLine({
 }
 
 export default function EstoqueBeneficiosPage() {
+  const [me] = useMe();
+  const [prizes, setPrizes] = useState<Prize[]>([]);
+  const [routes, setRoutes] = useState<RouteApi[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("todas");
   const [status, setStatus] = useState("todos");
   const [operation, setOperation] = useState<"entrada" | "transferencia">("entrada");
-  const [brinde, setBrinde] = useState("");
+  const [brindeId, setBrindeId] = useState("");
   const [destino, setDestino] = useState("Almoxarifado Geral (Sede Manauscult)");
   const [quantidade, setQuantidade] = useState("");
   const [nota, setNota] = useState("");
   const [justificativa, setJustificativa] = useState("");
-  const [audit, setAudit] = useState<AuditEntry[]>(INITIAL_AUDIT);
+  // O backend só persiste auditoria fiscal das operações (sem endpoint de
+  // listagem); o painel mantém um diário local de movimentações da sessão.
+  const [audit, setAudit] = useState<AuditEntry[]>([]);
+
+  const routesByPrizeId = useMemo(
+    () => new Map(routes.map((route) => [route.prize.id, route])),
+    [routes],
+  );
+  const maxStock = Math.max(1, ...prizes.map((prize) => prize.stock_quantity));
+
+  const inventory: InventoryItem[] = useMemo(() => {
+    return prizes.map((prize) => {
+      const route = routesByPrizeId.get(prize.id);
+      const status: StatusKind =
+        prize.stock_quantity <= 0 ? "baixo" : prize.stock_quantity > LOW_STOCK_THRESHOLD ? "seguro" : "baixo";
+      const image = ITEM_IMAGES.find((entry) => entry.match.test(prize.name))?.src || "/icons/estoque-box.svg";
+      return {
+        id: prize.id,
+        name: [prize.name],
+        sku: ["BRD-", prize.id.slice(0, 8).toUpperCase()],
+        image,
+        rota: route ? [route.name] : ["Sem rota", "vinculada"],
+        almox: "—",
+        postos: "—",
+        postosNote: ["Estoque", "centralizado"],
+        saldo: prize.stock_quantity.toLocaleString("pt-BR"),
+        saldoColor: status === "seguro" ? "#002f19" : "#603100",
+        barColor: status === "seguro" ? "#0d472b" : "#603100",
+        barFill: `${Math.max(8, Math.round((prize.stock_quantity / maxStock) * 100))}%`,
+        status,
+        statusLabel: status === "baixo" ? ["Estoque", "Baixo"] : ["Nível", "Seguro"],
+      };
+    });
+  }, [prizes, routesByPrizeId, maxStock]);
 
   const filtered = useMemo(() => {
-    return INVENTORY.filter((item) => {
+    return inventory.filter((item) => {
       const query = search.trim().toLowerCase();
       const matchesSearch =
         !query ||
@@ -222,28 +143,102 @@ export default function EstoqueBeneficiosPage() {
       const matchesStatus = status === "todos" || item.status === status;
       return matchesSearch && matchesCategory && matchesStatus;
     });
-  }, [search, category, status]);
+  }, [inventory, search, category, status]);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const [prizesRes, routesRes] = await Promise.all([
+          api.get<PrizesResponse>("/prizes"),
+          api.get<RoutesResponse>("/routes"),
+        ]);
+        if (alive) {
+          setPrizes(prizesRes.items);
+          setRoutes(routesRes.items);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar estoque:", error);
+      } finally {
+        if (alive) setIsLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  async function updateStock(prize: Prize, newStock: number) {
+    // O backend define o valor ABSOLUTO do estoque (PATCH /prizes/{id}/stock):
+    // somas/subtrações são calculadas no cliente a partir do valor atual.
+    await api.patch(`/prizes/${prize.id}/stock`, { stock_quantity: Math.max(0, newStock) });
+  }
+
+  async function handleStockEdit(item: InventoryItem) {
+    const prize = prizes.find((candidate) => candidate.id === item.id);
+    if (!prize) return;
+    const input = prompt(`Novo saldo absoluto de "${prize.name}":`, String(prize.stock_quantity));
+    if (input === null) return;
+    const newStock = Number(input);
+    if (Number.isNaN(newStock) || newStock < 0) {
+      alert("Informe um número válido de unidades.");
+      return;
+    }
+    try {
+      await updateStock(prize, newStock);
+      await loadInventory();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Erro ao atualizar estoque.");
+    }
+  }
+
+  async function loadInventory() {
+    try {
+      const prizesRes = await api.get<PrizesResponse>("/prizes");
+      setPrizes(prizesRes.items);
+    } catch (error) {
+      console.error("Erro ao recarregar estoque:", error);
+    }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const now = new Date();
-    const date = now.toLocaleDateString("pt-BR");
-    const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    if (operation === "transferencia") {
+      alert("Transferência entre postos ainda não é suportada pelo backend — o estoque de brindes é centralizado (PATCH /prizes/{id}/stock).");
+      return;
+    }
+    const prize = prizes.find((candidate) => candidate.id === brindeId);
+    if (!prize) {
+      alert("Selecione o brinde a movimentar.");
+      return;
+    }
     const qty = Number(quantidade.replace(/\./g, "").replace(",", ".")) || 0;
+    if (qty <= 0) {
+      alert("Informe uma quantidade positiva.");
+      return;
+    }
+    const now = new Date();
+    const server = me ? `${me.name} ${me.surname}` : "Operador autenticado";
+    let newStock: number;
+    try {
+      newStock = prize.stock_quantity + qty;
+      await updateStock(prize, newStock);
+      await loadInventory();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Erro ao registrar movimentação.");
+      return;
+    }
     setAudit((entries) => [
       {
-        date,
-        time,
-        kind: operation === "entrada" ? "licitacao" : "transferencia",
-        item: brinde || "Item do inventário",
-        qty: `${qty >= 0 ? "+" : ""}${qty.toLocaleString("pt-BR")} unid.`,
-        qtyColor: operation === "entrada" ? "#002f19" : "#396285",
-        route:
-          operation === "entrada"
-            ? `Fornecedor → ${destino}`
-            : `${destino} → ${destino}`,
-        server: "Carlos Eduardo Ramos",
-        serverNote: "Coordenador Manauscult",
+        date: now.toLocaleDateString("pt-BR"),
+        time: `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
+        kind: "licitacao",
+        item: prize.name,
+        qty: `+${qty.toLocaleString("pt-BR")} unid.`,
+        qtyColor: "#002f19",
+        route: `Fornecedor → ${destino}`,
+        server,
+        serverNote: nota || justificativa || "Entrada de lote",
       },
       ...entries,
     ]);
@@ -253,7 +248,7 @@ export default function EstoqueBeneficiosPage() {
   }
 
   return (
-    <AppShell>
+    <RoleShell>
       <div className="flex w-full flex-col items-start pb-8">
         {/* Top Navigation Context & Action Bar */}
         <div className="flex w-full shrink-0 flex-col items-start pb-6">
@@ -319,7 +314,7 @@ export default function EstoqueBeneficiosPage() {
                 <div className="flex w-full shrink-0 flex-col items-start gap-1.5">
                   <div className="flex items-baseline gap-1">
                     <span className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">
-                      8.450
+                      {isLoading ? "..." : prizes.reduce((acc, prize) => acc + prize.stock_quantity, 0).toLocaleString("pt-BR")}
                     </span>
                     <span className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
                       unid.
@@ -363,8 +358,9 @@ export default function EstoqueBeneficiosPage() {
               <div className="flex w-full shrink-0 flex-col items-start pt-4">
                 <div className="flex w-full shrink-0 flex-col items-start gap-1.5">
                   <div className="flex items-baseline gap-1">
+                    {/* TODO: sem agregado de resgates por período no backend */}
                     <span className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">
-                      3.812
+                      —
                     </span>
                     <span className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
                       resgates
@@ -405,7 +401,7 @@ export default function EstoqueBeneficiosPage() {
                 <div className="flex w-full shrink-0 flex-col items-start gap-1.5">
                   <div className="flex items-baseline gap-1">
                     <span className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#603100]">
-                      2
+                      {isLoading ? "..." : prizes.filter((prize) => prize.stock_quantity <= LOW_STOCK_THRESHOLD).length}
                     </span>
                     <span className="text-[12px] leading-4 tracking-[0.12px] text-[#603100]">
                       itens em alerta
@@ -449,8 +445,10 @@ export default function EstoqueBeneficiosPage() {
               <div className="flex w-full shrink-0 flex-col items-start pt-[15.25px]">
                 <div className="flex w-full shrink-0 flex-col items-start gap-1.5">
                   <div className="flex w-full shrink-0 flex-col items-start pb-[0.75px]">
+                    {/* TODO: distribuição por posto depende da logística de CATs,
+                    ainda sem fonte no backend */}
                     <p className="w-full text-[20px] font-bold leading-[27.5px] tracking-[-0.5px] text-[#131b2e]">
-                      CAT 01 - Centro Histórico
+                      Estoque Centralizado
                     </p>
                   </div>
                   <div className="flex w-full shrink-0 items-center gap-1.5">
@@ -526,11 +524,11 @@ export default function EstoqueBeneficiosPage() {
                       className="h-9 w-full appearance-none rounded-[4px] bg-[#f2f3ff] px-3 text-[12px] leading-[15px] tracking-[0.12px] text-[#131b2e] focus:outline-none"
                     >
                       <option value="todas">Todas Categorias</option>
-                      <option value="rota histórica">Rota Histórica</option>
-                      <option value="belle époque">Belle Époque</option>
-                      <option value="trilhas">Trilhas</option>
-                      <option value="circuito">Circuito</option>
-                      <option value="conquistador">Conquistador</option>
+                      {[...new Set(routes.map((route) => route.name))].map((routeName) => (
+                        <option key={routeName} value={routeName.toLowerCase()}>
+                          Rota: {routeName}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className="col-span-3">
@@ -601,11 +599,19 @@ export default function EstoqueBeneficiosPage() {
 
                   {/* Body */}
                   <div className="flex w-full shrink-0 flex-col items-start">
-                    {filtered.map((item) => {
+                    {isLoading ? (
+                      <div className="w-full py-8 text-center text-[13px] text-[#414942]">
+                        Carregando inventário...
+                      </div>
+                    ) : filtered.length === 0 ? (
+                      <div className="w-full py-8 text-center text-[13px] text-[#414942]">
+                        Nenhum brinde no inventário. Cadastre via &quot;Nova Entrada&quot; no painel à direita (ou publique uma rota, que cria o brinde vinculado).
+                      </div>
+                    ) : filtered.map((item) => {
                       const badge = STATUS_BADGES[item.status];
                       return (
                         <div
-                          key={item.sku.join("")}
+                          key={item.id}
                           className="flex w-full shrink-0 items-center justify-center py-3 pl-4 pr-2"
                         >
                           {/* Item & SKU */}
@@ -697,7 +703,8 @@ export default function EstoqueBeneficiosPage() {
                           <div className="flex w-[64px] shrink-0 items-center justify-center gap-1 pl-2">
                             <button
                               type="button"
-                              aria-label="Editar item"
+                              aria-label="Editar saldo"
+                              onClick={() => handleStockEdit(item)}
                               className="flex shrink-0 items-center justify-center rounded-[2px] px-1 pb-[9px] pt-1 hover:bg-[#f2f3ff]"
                             >
                               <img
@@ -728,7 +735,7 @@ export default function EstoqueBeneficiosPage() {
               {/* Rodapé da Tabela com Paginação */}
               <div className="flex w-full shrink-0 items-center justify-between bg-[#f2f3ff] py-2 pl-4 pr-4">
                 <span className="whitespace-nowrap text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
-                  Exibindo {filtered.length} de {INVENTORY.length} itens registrados no inventário
+                  Exibindo {filtered.length} de {prizes.length} itens registrados no inventário
                 </span>
                 <div className="flex shrink-0 items-center gap-1">
                   <button
@@ -842,14 +849,14 @@ export default function EstoqueBeneficiosPage() {
                       </label>
                       <select
                         id="estoque-brinde"
-                        value={brinde}
-                        onChange={(event) => setBrinde(event.target.value)}
+                        value={brindeId}
+                        onChange={(event) => setBrindeId(event.target.value)}
                         className="h-10 w-full appearance-none rounded-[4px] bg-[#f2f3ff] pl-4 pr-7 text-[12px] leading-[15px] tracking-[0.12px] text-[#131b2e] focus:outline-none"
                       >
                         <option value="">Selecione o brinde institucional...</option>
-                        {INVENTORY.map((item) => (
-                          <option key={item.sku.join("")} value={item.name.join(" ")}>
-                            {item.name.join(" ")}
+                        {prizes.map((prize) => (
+                          <option key={prize.id} value={prize.id}>
+                            {prize.name}
                           </option>
                         ))}
                       </select>
@@ -975,24 +982,31 @@ export default function EstoqueBeneficiosPage() {
                   </div>
                 </div>
                 <div className="flex w-full shrink-0 flex-col items-start gap-2 pt-1">
-                  {CAT_DISTRIBUTION.map((cat) => (
-                    <div key={cat.label} className="flex w-full shrink-0 flex-col items-start gap-0.5">
-                      <div className="flex w-full shrink-0 items-start justify-between">
-                        <span className="whitespace-nowrap text-[11px] font-semibold leading-3.5 tracking-[0.44px] text-[#131b2e]">
-                          {cat.label}
-                        </span>
-                        <span className="whitespace-nowrap text-[11px] font-medium leading-3.5 tracking-[0.44px] text-[#131b2e]">
-                          {cat.value}
-                        </span>
+                  {/* Distribuição por nível de estoque (derivada do saldo real) */}
+                  {(["seguro", "baixo"] as StatusKind[]).map((kind) => {
+                    const count = inventory.filter((item) => item.status === kind).length;
+                    const total = inventory.length || 1;
+                    const fill = Math.round((count / total) * 100);
+                    const label = kind === "seguro" ? "Nível Seguro" : "Estoque Baixo";
+                    return (
+                      <div key={kind} className="flex w-full shrink-0 flex-col items-start gap-0.5">
+                        <div className="flex w-full shrink-0 items-start justify-between">
+                          <span className="whitespace-nowrap text-[11px] font-semibold leading-3.5 tracking-[0.44px] text-[#131b2e]">
+                            {label}
+                          </span>
+                          <span className="whitespace-nowrap text-[11px] font-medium leading-3.5 tracking-[0.44px] text-[#131b2e]">
+                            {count} itens ({fill}%)
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-clip rounded-[12px] bg-[#eaedff]">
+                          <div
+                            className="h-full rounded-[12px]"
+                            style={{ width: `${fill}%`, backgroundColor: STATUS_BADGES[kind].dot }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-1.5 w-full overflow-clip rounded-[12px] bg-[#eaedff]">
-                        <div
-                          className="h-full rounded-[12px] bg-[#0d472b]"
-                          style={{ width: `calc(100% - ${cat.fill})` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -1147,6 +1161,6 @@ export default function EstoqueBeneficiosPage() {
           </div>
         </div>
       </div>
-    </AppShell>
+    </RoleShell>
   );
 }

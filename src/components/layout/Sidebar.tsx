@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logoutAndRedirect, useMe } from "@/hooks/useMe";
+import { canAccess } from "@/lib/rbac";
 
 type NavItem = {
   label: string;
@@ -48,6 +50,9 @@ const SECTIONS: NavSection[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [me] = useMe();
+  // Itens visíveis conforme o papel (mesmo mapa das páginas: src/lib/rbac.ts).
+  const role = me?.role ?? null;
 
   return (
     <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col justify-between bg-[#002f19] shadow-[0px_1px_4px_rgba(0,0,0,0.12)]">
@@ -81,13 +86,16 @@ export function Sidebar() {
 
         {/* Nav */}
         <nav className="flex min-h-0 flex-1 flex-col gap-4 px-2 py-4">
-          {SECTIONS.map((section) => (
+          {SECTIONS.map((section) => {
+            const items = section.items.filter((item) => canAccess(item.href, role));
+            if (items.length === 0) return null;
+            return (
             <div key={section.title}>
               <p className="mb-[7px] px-2 text-[11px] font-semibold uppercase leading-[14px] tracking-[0.55px] text-[rgba(154,211,173,0.8)]">
                 {section.title}
               </p>
               <ul className="flex flex-col gap-1">
-                {section.items.map((item) => (
+                {items.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
@@ -110,7 +118,8 @@ export function Sidebar() {
                 ))}
               </ul>
             </div>
-          ))}
+            );
+          })}
         </nav>
       </div>
 
@@ -125,17 +134,18 @@ export function Sidebar() {
               <span className="size-2 rounded-full bg-[#b6f0c8]" />
             </div>
             <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-white">
-              Administrador Geral
+              {me ? `${me.name} ${me.surname}` : "—"}
             </p>
             <div className="flex w-full items-center justify-center rounded-[2px] border border-[#c0c9c0] bg-[#002f19] py-[5px] pl-[9px] pr-[21px]">
               <p className="w-full text-[12px] leading-[15px] tracking-[0.12px] text-[#eef0ff]">
-                Administrador Geral
+                {me?.role === "admin" ? "Administrador Geral" : "Operador"}
               </p>
             </div>
           </div>
         </div>
         <button
           type="button"
+          onClick={logoutAndRedirect}
           className="mt-2 flex w-full items-center justify-between rounded-[4px] p-2 hover:bg-[rgba(13,71,43,0.6)]"
         >
           <span className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#eef0ff]">

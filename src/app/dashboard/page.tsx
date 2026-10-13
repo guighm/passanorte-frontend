@@ -1,80 +1,52 @@
 "use client";
 
 import { useState } from "react";
-import { AppShell } from "@/components/layout/AppShell";
+import { RoleShell } from "@/components/layout/RoleShell";
+import { useDashboardData, type PeriodKey } from "@/hooks/useDashboardData";
+import type { HeatmapItem } from "@/types/insights";
 
-const PERIODS = ["Hoje", "7 Dias", "Mês Atual", "2024 / 2025"];
-
-type Origin = {
-  flag: string;
-  label: string;
-  pct: string;
-  count: string;
-  fill: string;
-  rightInset: string;
-};
-
-const ORIGINS: Origin[] = [
-  { flag: "🇧🇷", label: "Brasil (Nacional)", pct: "62%", count: "(26.443)", fill: "#0d472b", rightInset: "38%" },
-  { flag: "🇺🇸", label: "Estados Unidos", pct: "14%", count: "(5.971)", fill: "#396285", rightInset: "86%" },
-  { flag: "🇩🇪", label: "Alemanha", pct: "8%", count: "(3.412)", fill: "#aed6fe", rightInset: "92%" },
-  { flag: "🇫🇷", label: "França", pct: "6%", count: "(2.559)", fill: "#9ad3ad", rightInset: "94%" },
-  { flag: "🇯🇵", label: "Japão", pct: "4%", count: "(1.706)", fill: "#ffb77d", rightInset: "96%" },
-  { flag: "🌐", label: "Demais Países", pct: "6%", count: "(2.559)", fill: "#c0c9c0", rightInset: "94%" },
+const PERIODS: { label: string; key: PeriodKey }[] = [
+  { label: "Hoje", key: "day" },
+  { label: "7 Dias", key: "week" },
+  { label: "Mês Atual", key: "month" },
+  { label: "Anual", key: "year" },
 ];
 
-const LEADERBOARD = [
-  { pos: "1. Largo de São Sebastião", cap: "96% da Cap.", capColor: "#ba1a1a", fill: "#ba1a1a", right: "4.01%", sub: "Teatro Amazonas / Centro", flow: "1.280 pax/h" },
-  { pos: "2. Adolpho Lisboa • Orla", cap: "82% da Cap.", capColor: "#f78e27", fill: "#f78e27", right: "18%", sub: "Mercado Central Municipal", flow: "890 pax/h" },
-  { pos: "3. Calçadão Ponta Negra", cap: "65% da Cap.", capColor: "#396285", fill: "#396285", right: "35.01%", sub: "Orla Oeste", flow: "740 pax/h" },
-  { pos: "4. Píer do Porto Flutuante", cap: "48% da Cap.", capColor: "#002f19", fill: "#0d472b", right: "52.01%", sub: "Embarques Fluviais", flow: "410 pax/h" },
-];
+// Projeção aproximada do bbox de Manaus sobre o canvas estilizado do SVG.
+// O mapa é decorativo (a geolocalização real fica no serviço insights); os
+// valores do bbox cobrem o centro + região leste da cidade com clamps.
+const MAP_BBOX = { minLat: -3.2, maxLat: -2.9, minLng: -60.2, maxLng: -59.78 };
+const MAP_RANGE = { minX: 30, maxX: 690, minY: 30, maxY: 410 };
 
-const TOP_ATTRACTIONS = [
-  { rank: "01", rankColor: "#002f19", bar: "#0d472b", barW: 6.91, name: ["Teatro", "Amazonas"], chip: ["Patrimônio", "Histórico"], chipW: 69.83, visitors: "28.400", time: ["1h", "35min"], delta: "+22.4%", deltaColor: "#002f19" },
-  { rank: "02", rankColor: "#396285", bar: "#396285", barW: 4.94, name: ["Mercado", "Adolpho", "Lisboa"], chip: ["Gastronomia /", "Cultura"], chipW: 88.5, visitors: "21.150", time: ["2h", "10min"], delta: "+14.1%", deltaColor: "#002f19" },
-  { rank: "03", rankColor: "#414942", bar: "#aed6fe", barW: 5.8, name: ["Praia da Ponta", "Negra"], chip: ["Lazer & Orla"], chipW: undefined, visitors: "19.820", time: ["3h", "40min"], delta: "+8.5%", deltaColor: "#002f19" },
-  { rank: "04", rankColor: "#414942", bar: "#9ad3ad", barW: 4.83, name: ["Bosque da", "Ciência (INPA)"], chip: ["Ecoturismo /", "Botânica"], chipW: 80.56, visitors: "14.200", time: ["2h", "20min"], delta: "+18.0%", deltaColor: "#002f19" },
-  { rank: "05", rankColor: "#414942", bar: "#717972", barW: 6.36, name: ["Palacete", "Provincial"], chip: ["Museus &", "Galerias"], chipW: 63.8, visitors: "9.840", time: ["1h 15min"], delta: "-2.1%", deltaColor: "#ba1a1a" },
-];
+function projectPin(item: HeatmapItem) {
+  const lat = item.lat ?? MAP_BBOX.maxLat;
+  const lng = item.lng ?? MAP_BBOX.minLng;
+  const nx = (lng - MAP_BBOX.minLng) / (MAP_BBOX.maxLng - MAP_BBOX.minLng);
+  const ny = (MAP_BBOX.maxLat - lat) / (MAP_BBOX.maxLat - MAP_BBOX.minLat);
+  return {
+    left: Math.min(Math.max(MAP_RANGE.minX + nx * (MAP_RANGE.maxX - MAP_RANGE.minX), MAP_RANGE.minX), MAP_RANGE.maxX),
+    top: Math.min(Math.max(MAP_RANGE.minY + ny * (MAP_RANGE.maxY - MAP_RANGE.minY), MAP_RANGE.minY), MAP_RANGE.maxY),
+  };
+}
 
-const INTERESTS = [
-  { swatch: "#0d472b", swatchW: 10.41, label: ["Cultura &", "História"], pct: "38%", pctColor: "#0d472b", mentions: "16.207 menções" },
-  { swatch: "#396285", swatchW: 8.23, label: ["Natureza &", "Ecoturismo"], pct: "27%", pctColor: "#396285", mentions: "11.515 menções" },
-  { swatch: "#f78e27", swatchW: 8.56, label: ["Gastronomia", "Regional"], pct: "20%", pctColor: "#f78e27", mentions: "8.530 menções" },
-  { swatch: "#aed6fe", swatchW: 10.77, label: ["Lazer &", "Aventura"], pct: "15%", pctColor: "#131b2e", mentions: "6.398 menções" },
-];
-
-const FEED = [
-  {
-    icon: "/icons/dash-feed-lote.svg", iconW: 18.333, iconH: 19.5,
-    title: "CAT Aeroporto • Lote de Passaportes Físicos", time: "Há 12 min", timeColor: "#414942", timeWeight: "font-semibold",
-    desc: ["Recebimento de 2.000 novos brindes oficiais PassaNorte para", "entrega em guichê."],
-  },
-  {
-    icon: "/icons/dash-feed-rota.svg", iconW: 15, iconH: 17,
-    title: "Rota Arquitetura da Borracha", time: "Há 45 min", timeColor: "#414942", timeWeight: "font-semibold",
-    desc: ["Conclusão de rota por 142 passageiros de cruzeiro atracado no Porto", "Flutuante."],
-  },
-  {
-    icon: "/icons/dash-feed-alerta.svg", iconW: 18.333, iconH: 17.833,
-    title: "Alerta de Chuva Súbita no Encontro das Águas", time: "Há 1h", timeColor: "#ba1a1a", timeWeight: "font-medium",
-    desc: ["Capitania dos Portos recomendou desaceleração de lanchas rápidas", "no trecho do Solimões."],
-  },
-];
+// Faixas de densidade (weight já normalizado 0–1 no insights /heatmap).
+function pinDensity(item: HeatmapItem) {
+  if (item.weight >= 0.75) return { color: "#ba1a1a", icon: "/icons/dash-pin-critical.svg", iconW: 12.833, iconH: 11.667, halo: true, label: "Pico Extremo", labelColor: "#ba1a1a" };
+  if (item.weight >= 0.5) return { color: "#f78e27", icon: "/icons/dash-pin-high.svg", iconW: 10.884, iconH: 9.75, halo: false, label: "Fluxo Alto", labelColor: "#9a3412" };
+  if (item.weight >= 0.25) return { color: "#396285", icon: "/icons/dash-pin-medium.svg", iconW: 9.75, iconH: 9.764, halo: false, label: "Fluxo Médio", labelColor: "#414942" };
+  return { color: "#0d472b", icon: "/icons/dash-pin-normal.svg", iconW: 9.75, iconH: 10.833, halo: false, label: "Fluxo Normal", labelColor: "#414942" };
+}
 
 type MapPin = {
   left: number;
   top: number;
-  pinColor?: string;
-  pinSize: number;
+  pinColor: string;
   icon: string;
   iconW: number;
   iconH: number;
-  halo?: boolean;
+  halo: boolean;
   tooltipLeft: number;
   tooltipTop: number;
-  tooltipW: number;
   title: string;
   titleColor: string;
   detail: string;
@@ -82,43 +54,56 @@ type MapPin = {
   detailWeight: string;
 };
 
-const MAP_PINS: MapPin[] = [
-  {
-    left: 438, top: 228, pinColor: "#ba1a1a", pinSize: 24, halo: true,
-    icon: "/icons/dash-pin-critical.svg", iconW: 12.833, iconH: 11.667,
-    tooltipLeft: -70.6, tooltipTop: -52, tooltipW: 165.2,
-    title: "Teatro Amazonas", titleColor: "#002f19",
-    detail: "Fluxo Crítico: 1.280 pax/h", detailColor: "#ba1a1a", detailWeight: "font-medium",
-  },
-  {
-    left: 430, top: 320, pinColor: "#f78e27", pinSize: 20,
-    icon: "/icons/dash-pin-high.svg", iconW: 10.884, iconH: 9.75,
-    tooltipLeft: -69.62, tooltipTop: 26, tooltipW: 159.23,
-    title: "Mercado Adolpho Lisboa", titleColor: "#131b2e",
-    detail: "890 pax/h • Alto", detailColor: "#414942", detailWeight: "font-normal",
-  },
-  {
-    left: 190, top: 205, pinColor: "#396285", pinSize: 20,
-    icon: "/icons/dash-pin-medium.svg", iconW: 9.75, iconH: 9.764,
-    tooltipLeft: -58.51, tooltipTop: -52, tooltipW: 137.02,
-    title: "Praia de Ponta Negra", titleColor: "#131b2e",
-    detail: "740 pax/h • Médio", detailColor: "#414942", detailWeight: "font-normal",
-  },
-  {
-    left: 560, top: 165, pinColor: "#0d472b", pinSize: 20,
-    icon: "/icons/dash-pin-normal.svg", iconW: 9.75, iconH: 10.833,
-    tooltipLeft: -71.48, tooltipTop: -52, tooltipW: 162.97,
-    title: "Bosque da Ciência (INPA)", titleColor: "#131b2e",
-    detail: "510 pax/h • Normal", detailColor: "#414942", detailWeight: "font-normal",
-  },
-];
-
 export default function DashboardPage() {
-  const [period, setPeriod] = useState("Mês Atual");
+  const [period, setPeriod] = useState<PeriodKey>("month");
+  const { data, isLoading, error } = useDashboardData(period);
   const [originMode, setOriginMode] = useState<"total" | "inter">("total");
 
+  const pins: MapPin[] = (data?.heatmap ?? [])
+    .filter((item) => item.visit_count > 0)
+    .slice(0, 12) // top-12 do ranking; tooltip só nos 4 maiores (fidelidade ao layout)
+    .map((item, idx) => {
+      const density = pinDensity(item);
+      const { left, top } = projectPin(item);
+      const showTooltip = idx < 4;
+      return {
+        left,
+        top,
+        pinColor: density.color,
+        icon: density.icon,
+        iconW: density.iconW,
+        iconH: density.iconH,
+        halo: density.halo,
+        tooltipLeft: showTooltip ? -70 : 0,
+        tooltipTop: showTooltip ? -52 : 0,
+        title: item.name,
+        titleColor: idx === 0 ? "#002f19" : "#131b2e",
+        detail: `${item.visit_count.toLocaleString()} visitas • ${density.label}`,
+        detailColor: idx === 0 ? density.labelColor : "#414942",
+        detailWeight: idx === 0 ? "font-medium" : "font-normal",
+      };
+    });
+
+  const hasData = pins.length > 0;
+
+  if (error) {
+    return (
+      <RoleShell breadcrumb="Dashboard">
+        <div className="flex h-full flex-col items-center justify-center text-center">
+          <p className="text-red-600 font-semibold">Erro ao carregar dados: {error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 rounded bg-[#0d472b] px-4 py-2 text-white text-sm"
+          >
+            Tentar Novamente
+          </button>
+        </div>
+      </RoleShell>
+    );
+  }
+
   return (
-    <AppShell breadcrumb="Dashboard">
+    <RoleShell breadcrumb="Dashboard">
       <div className="flex w-full flex-col items-start pb-8">
         {/* Top Operational Control Bar & Sub-Header */}
         <section className="flex w-full shrink-0 flex-col pb-4">
@@ -149,21 +134,21 @@ export default function DashboardPage() {
               <div className="absolute left-0 top-[calc(50%-20px)] flex -translate-y-1/2 items-start gap-[2px] rounded-[4px] bg-[#e2e7ff] p-1">
                 {PERIODS.map((p) => (
                   <button
-                    key={p}
+                    key={p.key}
                     type="button"
-                    onClick={() => setPeriod(p)}
+                    onClick={() => setPeriod(p.key)}
                     className={`flex shrink-0 flex-col items-center justify-center rounded-[2px] px-2 py-1 ${
-                      p === period
+                      p.key === period
                         ? "bg-[#002f19] shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
                         : ""
                     }`}
                   >
                     <span
                       className={`text-center text-[11px] font-semibold leading-[14px] tracking-[0.44px] ${
-                        p === period ? "text-white" : "text-[#414942]"
+                        p.key === period ? "text-white" : "text-[#414942]"
                       }`}
                     >
-                      {p}
+                      {p.label}
                     </span>
                   </button>
                 ))}
@@ -171,6 +156,7 @@ export default function DashboardPage() {
               <div className="absolute left-[274.34px] top-[calc(50%-20px)] h-6 w-px -translate-y-1/2 bg-[#dae2fd]" />
               <button
                 type="button"
+                onClick={() => window.location.reload()}
                 className="absolute left-[283.34px] top-[calc(50%-20px)] flex -translate-y-1/2 items-center gap-[6px] rounded-[4px] bg-white p-2 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
               >
                 <div className="relative h-[14.667px] w-[10.667px] shrink-0">
@@ -210,7 +196,9 @@ export default function DashboardPage() {
                     Check-ins &amp; Acessos
                   </p>
                   <div className="flex w-full flex-col items-start pt-1">
-                    <p className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">148.920</p>
+                    <p className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">
+                      {isLoading ? "..." : data?.stats.checkins.toLocaleString()}
+                    </p>
                   </div>
                 </div>
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-[4px] bg-[#f2f3ff]">
@@ -233,7 +221,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="flex w-full shrink-0 flex-col items-start pt-[6px]">
-                <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">vs. 125.750 no ciclo anterior</p>
+                <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">vs. ciclo anterior</p>
               </div>
             </div>
 
@@ -245,7 +233,8 @@ export default function DashboardPage() {
                     Turistas Únicos
                   </p>
                   <div className="flex w-full flex-col items-start pt-1">
-                    <p className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">42.650</p>
+                    {/* TODO: backend não agrega turistas únicos ainda */}
+                    <p className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">—</p>
                   </div>
                 </div>
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-[4px] bg-[#f2f3ff]">
@@ -260,13 +249,14 @@ export default function DashboardPage() {
                     <div className="relative h-[9.333px] w-[12.833px] shrink-0">
                       <img alt="" src="/icons/dash-trend-up-2.svg" className="absolute inset-0 block size-full" />
                     </div>
-                    <span className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#396285]">+9.2%</span>
+                    {/* TODO: backend não agrega turistas únicos ainda */}
+                    <span className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#396285]">—</span>
                   </div>
-                  <p className="text-[13px] font-medium leading-[18px] tracking-[0.26px] text-[#414942]">8.420 ativos hoje</p>
+                  <p className="text-[13px] font-medium leading-[18px] tracking-[0.26px] text-[#414942]">Passaportes digitais validados</p>
                 </div>
               </div>
               <div className="flex w-full shrink-0 flex-col items-start pt-[6px]">
-                <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">Passaportes digitais validados</p>
+                <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">Dados consolidados</p>
               </div>
             </div>
 
@@ -278,7 +268,8 @@ export default function DashboardPage() {
                     Benefícios Concedidos
                   </p>
                   <div className="flex w-full flex-col items-start pt-1">
-                    <p className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">3.812</p>
+                    {/* TODO: backend não agrega resgates ainda */}
+                    <p className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">—</p>
                   </div>
                 </div>
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-[4px] bg-[#f2f3ff]">
@@ -294,7 +285,8 @@ export default function DashboardPage() {
                       <img alt="" src="/icons/dash-trend-conv.svg" className="absolute inset-0 block size-full" />
                     </div>
                     <div className="flex shrink-0 flex-col items-start pr-[18.8px]">
-                      <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#1f4a6c]">74%</p>
+                      {/* TODO: backend não agrega resgates ainda */}
+                      <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#1f4a6c]">—</p>
                       <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#1f4a6c]">conv.</p>
                     </div>
                   </div>
@@ -318,8 +310,12 @@ export default function DashboardPage() {
                   </p>
                   <div className="flex w-full flex-col items-start pt-1">
                     <div className="flex h-10 items-center">
-                      <span className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">38&nbsp;</span>
-                      <span className="text-[14px] leading-5 text-[#414942]">/ 38</span>
+                      <span className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">
+                        {isLoading ? "..." : data?.stats.monitoredAttractions.total}&nbsp;
+                      </span>
+                      <span className="text-[14px] leading-5 text-[#414942]">
+                        / {isLoading ? "..." : data?.stats.monitoredAttractions.total}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -333,13 +329,17 @@ export default function DashboardPage() {
                 <div className="flex w-full items-center justify-between pt-1">
                   <div className="flex shrink-0 items-center gap-1 rounded-[2px] bg-[#e2e7ff] px-[6px] py-[2px]">
                     <div className="size-2 shrink-0 rounded-[12px] bg-[#0d472b]" />
-                    <span className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#0d472b]">35 Operando</span>
+                    <span className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#0d472b]">
+                      {isLoading ? "..." : data?.stats.monitoredAttractions.operating} Operando
+                    </span>
                   </div>
-                  <p className="text-[11px] font-medium leading-[14px] tracking-[0.44px] text-[#ba1a1a]">3 c/ restrição</p>
+                  <p className="text-[11px] font-medium leading-[14px] tracking-[0.44px] text-[#ba1a1a]">
+                    {isLoading ? "..." : data?.stats.monitoredAttractions.restricted} c/ restrição
+                  </p>
                 </div>
               </div>
               <div className="flex w-full shrink-0 flex-col items-start pt-[6px]">
-                <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">92.1% disponibilidade de rede</p>
+                <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">Disponibilidade de rede</p>
               </div>
             </div>
           </div>
@@ -385,62 +385,64 @@ export default function DashboardPage() {
                   src="/images/dash-manaus-map.svg"
                   className="absolute inset-0 block size-full max-w-none"
                 />
-                {MAP_PINS.map((pin) => (
-                  <div
-                    key={pin.title}
-                    className="absolute flex flex-col items-start"
-                    style={{ left: pin.left, top: pin.top }}
-                  >
-                    <div className="flex shrink-0 items-center justify-center">
-                      {pin.halo && (
-                        <div className="absolute -left-2 -top-2 size-10 rounded-[12px] bg-[rgba(186,26,26,0.4)]" />
-                      )}
-                      <div
-                        className="relative flex shrink-0 items-center justify-center rounded-[12px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
-                        style={{ width: pin.pinSize, height: pin.pinSize, backgroundColor: pin.pinColor }}
-                      >
-                        <img
-                          alt=""
-                          src={pin.icon}
-                          className="relative block max-w-none"
-                          style={{ width: pin.iconW, height: pin.iconH }}
-                        />
-                      </div>
-                    </div>
+                {hasData ? (
+                  pins.map((pin, idx) => (
                     <div
-                      className="absolute flex flex-col items-start gap-[5.5px] rounded-[2px] bg-white px-2 py-1 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
-                      style={{ left: pin.tooltipLeft, top: pin.tooltipTop, width: pin.tooltipW }}
+                      key={`${pin.title}-${idx}`}
+                      className="absolute flex flex-col items-start"
+                      style={{ left: pin.left, top: pin.top }}
                     >
-                      <p
-                        className="w-full text-[11px] font-bold leading-[14px] tracking-[0.44px]"
-                        style={{ color: pin.titleColor }}
-                      >
-                        {pin.title}
-                      </p>
-                      <p
-                        className={`text-[12px] leading-4 tracking-[0.12px] ${pin.detailWeight}`}
-                        style={{ color: pin.detailColor }}
-                      >
-                        {pin.detail}
-                      </p>
+                      <div className="flex shrink-0 items-center justify-center">
+                        {pin.halo && (
+                          <div className="absolute -left-2 -top-2 size-10 rounded-[12px] bg-[rgba(186,26,26,0.4)]" />
+                        )}
+                        <div
+                          className="relative flex shrink-0 items-center justify-center rounded-[12px] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
+                          style={{ width: 20, height: 20, backgroundColor: pin.pinColor }}
+                        >
+                          <img
+                            alt=""
+                            src={pin.icon}
+                            className="relative block max-w-none"
+                            style={{ width: pin.iconW, height: pin.iconH }}
+                          />
+                        </div>
+                      </div>
+                      {idx < 4 && (
+                        <div
+                          className="absolute flex flex-col items-start gap-[5.5px] rounded-[2px] bg-white px-2 py-1 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
+                          style={{ left: pin.tooltipLeft, top: pin.tooltipTop, width: 165 }}
+                        >
+                          <p
+                            className="w-full text-[11px] font-bold leading-[14px] tracking-[0.44px]"
+                            style={{ color: pin.titleColor }}
+                          >
+                            {pin.title}
+                          </p>
+                          <p
+                            className={`text-[12px] leading-4 tracking-[0.12px] ${pin.detailWeight}`}
+                            style={{ color: pin.detailColor }}
+                          >
+                            {pin.detail}
+                          </p>
+                        </div>
+                      )}
                     </div>
+                  ))
+                ) : (
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-[2px] bg-[rgba(0,47,25,0.9)] px-3 py-[6px] backdrop-blur-[2px]">
+                    <p className="text-[12px] leading-4 tracking-[0.12px] text-[#b6f0c8]">
+                      Sem visitas validadas no período ainda
+                    </p>
                   </div>
-                ))}
-                {/* 5. Encontro das Águas — tooltip only */}
-                <div
-                  className="absolute flex flex-col items-start gap-[5.5px] rounded-[2px] bg-white px-2 pb-[6.5px] pt-1 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]"
-                  style={{ left: 631.16, top: 348, width: 167.69 }}
-                >
-                  <p className="text-[11px] font-bold leading-[14px] tracking-[0.44px] text-[#131b2e]">Encontro das Águas</p>
-                  <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">Embarcações: 28 no setor</p>
-                </div>
+                )}
 
                 {/* HUD Cartographic Info Strip */}
                 <div className="absolute bottom-3 left-3 flex items-center gap-3 rounded-[2px] bg-[rgba(0,47,25,0.9)] px-3 py-[6px] backdrop-blur-[2px]">
                   <div className="flex shrink-0 items-center gap-[6px]">
                     <div className="size-2 shrink-0 rounded-[12px] bg-[#b6f0c8]" />
                     <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.44px] text-[#b6f0c8]">
-                      Antenas Ativas: 42
+                      Atrativos no mapa: {pins.length}
                     </p>
                   </div>
                   <p className="text-[12px] leading-4 tracking-[0.12px] text-[#7db591]">•</p>
@@ -466,23 +468,23 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="flex w-full shrink-0 flex-col items-start gap-2">
-                  {LEADERBOARD.map((item) => (
-                    <div key={item.pos} className="flex w-full shrink-0 flex-col items-start gap-1 rounded-[4px] bg-[#f2f3ff] p-2">
+                  {data?.leaderboard.map((item, idx) => (
+                    <div key={item.id} className="flex w-full shrink-0 flex-col items-start gap-1 rounded-[4px] bg-[#f2f3ff] p-2">
                       <div className="flex w-full shrink-0 items-center justify-between">
-                        <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#131b2e]">{item.pos}</p>
-                        <p className="text-[11px] font-bold leading-[14px] tracking-[0.44px]" style={{ color: item.capColor }}>
-                          {item.cap}
+                        <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#131b2e]">{item.name}</p>
+                        <p className="text-[11px] font-bold leading-[14px] tracking-[0.44px]" style={{ color: idx === 0 ? "#ba1a1a" : "#414942" }}>
+                          {item.percentage}% do líder
                         </p>
                       </div>
                       <div className="relative h-[6px] w-full shrink-0 overflow-clip rounded-[12px] bg-[#dae2fd]">
                         <div
                           className="absolute left-0 top-0 h-[6px] rounded-[12px]"
-                          style={{ right: item.right, backgroundColor: item.fill }}
+                          style={{ right: `${100 - item.percentage}%`, backgroundColor: idx === 0 ? "#ba1a1a" : "#0d472b" }}
                         />
                       </div>
                       <div className="flex w-full shrink-0 items-center justify-between">
-                        <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">{item.sub}</p>
-                        <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">{item.flow}</p>
+                        <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">{item.subtext || "Ponto Turístico"}</p>
+                        <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">{item.flow || "0 visitas"}</p>
                       </div>
                     </div>
                   ))}
@@ -496,11 +498,7 @@ export default function DashboardPage() {
                   <div className="flex shrink-0 flex-col items-start">
                     <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#131b2e]">Postos CAT Manauscult</p>
                     <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
-                      Posto Aeroporto Eduardo Gomes com
-                      <br />
-                      alta demanda de carimbos digitais
-                      <br />
-                      PassaNorte.
+                      Acompanhamento de demanda em tempo real nos postos.
                     </p>
                   </div>
                 </div>
@@ -510,253 +508,230 @@ export default function DashboardPage() {
         </section>
 
         {/* Deep Analytics Grid: Top Attractions Table & Demographic Insights */}
-        <section className="flex w-full shrink-0 flex-col pb-6">
-          <div className="grid w-full shrink-0 grid-cols-[repeat(12,minmax(0,1fr))] grid-rows-[556px] gap-4">
-            {/* Top 5 Visited Attractions Table */}
-            <div className="col-[1/span_7] row-1 flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
-              <div className="flex w-full shrink-0 flex-col items-start gap-4">
-                <div className="flex w-full shrink-0 items-center justify-between">
-                  <div className="flex shrink-0 items-center gap-2">
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-[4px] bg-[#f2f3ff]">
-                      <div className="relative h-[16.667px] w-[15px] shrink-0">
-                        <img alt="" src="/icons/dash-top5.svg" className="absolute inset-0 block size-full" />
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 flex-col items-start gap-[5.5px] pb-[2.5px]">
-                      <p className="text-[16px] font-semibold leading-6 text-[#131b2e]">Top 5 Atrativos Mais Visitados</p>
-                      <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
-                        Validações consolidadas no ciclo corrente
-                      </p>
+        <section className="grid w-full shrink-0 grid-cols-[repeat(12,minmax(0,1fr))] grid-rows-[556px] gap-4">
+          {/* Top 5 Visited Attractions Table */}
+          <div className="col-[1/span_7] row-1 flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex w-full shrink-0 flex-col items-start gap-4">
+              <div className="flex w-full shrink-0 items-center justify-between">
+                <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-[4px] bg-[#f2f3ff]">
+                    <div className="relative h-[16.667px] w-[15px] shrink-0">
+                      <img alt="" src="/icons/dash-top5.svg" className="absolute inset-0 block size-full" />
                     </div>
                   </div>
-                  <button type="button" className="flex shrink-0 items-center gap-1">
-                    <span className="text-center text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#002f19]">
-                      Ver ranking completo
-                    </span>
-                    <div className="relative size-[9.333px] shrink-0">
-                      <img alt="" src="/icons/dash-arrow-right.svg" className="absolute inset-0 block size-full" />
-                    </div>
-                  </button>
-                </div>
-
-                {/* Table */}
-                <div className="flex w-full shrink-0 flex-col items-start overflow-auto">
-                  {/* Header row */}
-                  <div className="flex w-full shrink-0 items-start justify-center rounded-t-[2px] bg-[#f2f3ff]">
-                    <div className="flex w-[49.03px] shrink-0 flex-col items-start px-3 py-[17px]">
-                      <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">Pos.</p>
-                    </div>
-                    <div className="flex w-[129.38px] shrink-0 flex-col items-start px-3 py-[17px]">
-                      <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">Ponto Turístico</p>
-                    </div>
-                    <div className="flex w-[122.53px] shrink-0 flex-col items-start px-3 py-[17px]">
-                      <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">Categoria</p>
-                    </div>
-                    <div className="flex w-[81.52px] shrink-0 flex-col items-end px-3 py-[17px]">
-                      <p className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
-                        Visitantes
-                      </p>
-                    </div>
-                    <div className="flex w-[73.8px] shrink-0 flex-col items-end px-3 py-[10px]">
-                      <p className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
-                        Tempo
-                        <br />
-                        Médio
-                      </p>
-                    </div>
-                    <div className="flex w-[74.41px] shrink-0 flex-col items-end rounded-br-[2px] rounded-tr-[2px] px-3 py-[17px]">
-                      <p className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
-                        Variação
-                      </p>
-                    </div>
-                  </div>
-                  {/* Body */}
-                  <div className="flex w-full shrink-0 flex-col items-start">
-                    {TOP_ATTRACTIONS.map((row) => (
-                      <div
-                        key={row.rank}
-                        className="mb-[-1px] flex w-full shrink-0 items-center justify-center border-t border-solid border-[rgba(0,0,0,0)] pt-px"
-                      >
-                        <div className="flex w-[49.03px] shrink-0 flex-col items-start px-3 py-[27.5px]">
-                          <p
-                            className="text-[13px] font-bold leading-[18px] tracking-[0.26px]"
-                            style={{ color: row.rankColor }}
-                          >
-                            {row.rank}
-                          </p>
-                        </div>
-                        <div className="flex w-[117.38px] shrink-0 items-center gap-2 pl-3">
-                          <div
-                            className="h-2 shrink-0 rounded-[12px]"
-                            style={{ width: row.barW, backgroundColor: row.bar }}
-                          />
-                          <div className="flex shrink-0 flex-col items-start">
-                            {row.name.map((line) => (
-                              <p
-                                key={line}
-                                className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#131b2e]"
-                              >
-                                {line}
-                              </p>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="flex w-[134.53px] shrink-0 flex-col items-start pb-[13.5px] pl-6 pr-3 pt-[17.5px]">
-                          {row.chipW !== undefined ? (
-                            <div
-                              className="flex shrink-0 flex-col justify-center rounded-[2px] bg-[#eaedff] px-2 py-[3px]"
-                              style={{ width: row.chipW }}
-                            >
-                              <p className="text-[11px] font-semibold leading-[18px] tracking-[0.44px] text-[#414942]">
-                                {row.chip[0]}
-                              </p>
-                              <p className="text-[11px] font-semibold leading-[18px] tracking-[0.44px] text-[#414942]">
-                                {row.chip[1]}
-                              </p>
-                            </div>
-                          ) : (
-                            <div className="flex shrink-0 items-start rounded-[2px] bg-[#eaedff] px-2 py-[2px]">
-                              <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
-                                {row.chip[0]}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex w-[81.52px] shrink-0 flex-col items-end px-3 py-[27.5px]">
-                          <p className="text-right text-[13px] font-bold leading-[18px] tracking-[0.26px] text-[#131b2e]">
-                            {row.visitors}
-                          </p>
-                        </div>
-                        <div className="flex w-[73.8px] shrink-0 flex-col items-end px-3 py-[20px]">
-                          {row.time.map((line) => (
-                            <p key={line} className="text-right text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
-                              {line}
-                            </p>
-                          ))}
-                        </div>
-                        <div className="flex w-[74.41px] shrink-0 flex-col items-end px-3 py-[29px]">
-                          <p
-                            className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px]"
-                            style={{ color: row.deltaColor }}
-                          >
-                            {row.delta}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Capacity footer */}
-              <div className="flex w-full shrink-0 flex-col items-start pt-4">
-                <div className="flex w-full shrink-0 items-center justify-between rounded-[4px] bg-[#f2f3ff] py-2 pl-2 pr-[8.01px]">
-                  <div className="flex shrink-0 flex-col items-start pr-[34.17px]">
+                  <div className="flex shrink-0 flex-col items-start gap-[5.5px] pb-[2.5px]">
+                    <p className="text-[16px] font-semibold leading-6 text-[#131b2e]">Top 5 Atrativos Mais Visitados</p>
                     <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
-                      Capacidade total somada dos atrativos monitorados:
-                      <br />
-                      85.000 pax/dia
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-col items-start pr-3">
-                    <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#002f19]">
-                      Operação Dentro da Margem
-                      <br />
-                      Segura
+                      Validações consolidadas no ciclo corrente
                     </p>
                   </div>
                 </div>
+                <button type="button" className="flex shrink-0 items-center gap-1">
+                  <span className="text-center text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#002f19]">
+                    Ver ranking completo
+                  </span>
+                  <div className="relative size-[9.333px] shrink-0">
+                    <img alt="" src="/icons/dash-arrow-right.svg" className="absolute inset-0 block size-full" />
+                  </div>
+                </button>
               </div>
-            </div>
 
-            {/* Country of Origin Distribution */}
-            <div className="col-[8/span_5] row-1 flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
-              <div className="flex w-full shrink-0 flex-col items-start gap-4">
-                <div className="flex w-full shrink-0 items-center justify-between">
-                  <div className="flex shrink-0 items-center gap-2">
-                    <div className="flex h-8 w-[30.73px] shrink-0 items-center justify-center rounded-[4px] bg-[#f2f3ff]">
-                      <div className="relative size-[16.667px] shrink-0">
-                        <img alt="" src="/icons/dash-origin.svg" className="absolute inset-0 block size-full" />
-                      </div>
-                    </div>
-                    <div className="h-[72px] w-[232.27px] shrink-0">
-                      <p className="text-[16px] font-semibold leading-6 text-[#131b2e]">Origem dos Viajantes</p>
-                      <p className="pt-[13.5px] text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
-                        Distribuição geográfica por
-                        <br />
-                        nacionalidade
-                      </p>
-                    </div>
+              {/* Table */}
+              <div className="flex w-full shrink-0 flex-col items-start overflow-auto">
+                {/* Header row */}
+                <div className="flex w-full shrink-0 items-start justify-center rounded-t-[2px] bg-[#f2f3ff]">
+                  <div className="flex w-[49.03px] shrink-0 flex-col items-start px-3 py-[17px]">
+                    <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">Pos.</p>
                   </div>
-                  <div className="flex shrink-0 items-start rounded-[2px] bg-[#e2e7ff] p-[2px]">
-                    <button
-                      type="button"
-                      onClick={() => setOriginMode("total")}
-                      className={`mr-[-0.01px] flex shrink-0 flex-col items-center justify-center rounded-[2px] px-2 py-[2px] ${
-                        originMode === "total" ? "bg-white" : ""
-                      }`}
-                    >
-                      <span className="text-center text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#131b2e]">
-                        Total
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setOriginMode("inter")}
-                      className={`flex shrink-0 flex-col items-center justify-center rounded-[2px] px-2 py-[2px] ${
-                        originMode === "inter" ? "bg-white" : ""
-                      }`}
-                    >
-                      <span className="text-center text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
-                        Inter.
-                      </span>
-                    </button>
+                  <div className="flex w-[129.38px] shrink-0 flex-col items-start px-3 py-[17px]">
+                    <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">Ponto Turístico</p>
+                  </div>
+                  <div className="flex w-[122.53px] shrink-0 flex-col items-start px-3 py-[17px]">
+                    <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">Categoria</p>
+                  </div>
+                  <div className="flex w-[81.52px] shrink-0 flex-col items-end px-3 py-[17px]">
+                    <p className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
+                      Visitantes
+                    </p>
+                  </div>
+                  <div className="flex w-[73.8px] shrink-0 flex-col items-end px-3 py-[10px]">
+                    <p className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
+                      Share do
+                      <br />
+                      Candidato
+                    </p>
+                  </div>
+                  <div className="flex w-[74.41px] shrink-0 flex-col items-end rounded-br-[2px] rounded-tr-[2px] px-3 py-[17px]">
+                    <p className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
+                      Variação
+                    </p>
                   </div>
                 </div>
-
-                {/* Horizontal Country Flow Bars */}
-                <div className="flex w-full shrink-0 flex-col items-start gap-2">
-                  {ORIGINS.map((o) => (
-                    <div key={o.label} className="flex w-full shrink-0 flex-col items-start gap-1">
-                      <div className="flex w-full shrink-0 items-center justify-between">
-                        <div className="flex shrink-0 items-center gap-[5.99px]">
-                          <p className="text-[16px] font-semibold leading-4 tracking-[0.44px] text-[#131b2e]">{o.flag}</p>
-                          <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#131b2e]">
-                            {o.label}
-                          </p>
-                        </div>
-                        <p className="text-[13px] font-bold tracking-[0.26px] text-[#131b2e]">
-                          {o.pct}&nbsp;
-                          <span className="font-normal text-[#414942]">{o.count}</span>
+                {/* Body */}
+                <div className="flex w-full shrink-0 flex-col items-start">
+                  {data?.topAttractions.map((row, idx) => (
+                    <div
+                      key={row.id}
+                      className="mb-[-1px] flex w-full shrink-0 items-center justify-center border-t border-solid border-[rgba(0,0,0,0)] pt-px"
+                    >
+                      <div className="flex w-[49.03px] shrink-0 flex-col items-start px-3 py-[27.5px]">
+                        <p
+                          className="text-[13px] font-bold leading-[18px] tracking-[0.26px]"
+                          style={{ color: idx < 3 ? "#002f19" : "#414942" }}
+                        >
+                          {idx + 1}
                         </p>
                       </div>
-                      <div className="relative h-2 w-full shrink-0 overflow-clip rounded-[12px] bg-[#eaedff]">
+                      <div className="flex w-[117.38px] shrink-0 items-center gap-2 pl-3">
                         <div
-                          className="absolute left-0 top-0 h-2 rounded-[12px]"
-                          style={{ right: o.rightInset, backgroundColor: o.fill }}
+                          className="h-2 shrink-0 rounded-[12px]"
+                          style={{ width: `${Math.max(row.percentage, 8)}%`, backgroundColor: "#0d472b" }}
                         />
+                        <div className="flex shrink-0 flex-col items-start">
+                          <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#131b2e]">
+                            {row.name}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex w-[134.53px] shrink-0 flex-col items-start pb-[13.5px] pl-6 pr-3 pt-[17.5px]">
+                        <div className="flex shrink-0 items-start rounded-[2px] bg-[#eaedff] px-2 py-[2px]">
+                          <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
+                            {row.subtext || "Geral"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex w-[81.52px] shrink-0 flex-col items-end px-3 py-[27.5px]">
+                        <p className="text-right text-[13px] font-bold leading-[18px] tracking-[0.26px] text-[#131b2e]">
+                          {row.value.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex w-[73.8px] shrink-0 flex-col items-end px-3 py-[20px]">
+                        <p className="text-right text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
+                          {row.flow || "N/A"}
+                        </p>
+                      </div>
+                      <div className="flex w-[74.41px] shrink-0 flex-col items-end px-3 py-[29px]">
+                        <p
+                          className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px]"
+                          style={{ color: row.percentage > 50 ? "#002f19" : "#ba1a1a" }}
+                        >
+                          {row.percentage > 50 ? "+↑" : "↓"} {row.percentage}%
+                        </p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
+            </div>
 
-              <div className="flex w-full shrink-0 flex-col items-start pt-4">
-                <div className="flex w-full shrink-0 items-center justify-between rounded-[4px] bg-[#f2f3ff] py-2 pl-2 pr-[8.01px]">
-                  <div className="flex shrink-0 flex-col items-start pr-[64.02px]">
-                    <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
-                      Turismo Emissivo
+            {/* Capacity footer */}
+            <div className="flex w-full shrink-0 flex-col items-start pt-4">
+              <div className="flex w-full shrink-0 items-center justify-between rounded-[4px] bg-[#f2f3ff] py-2 pl-2 pr-[8.01px]">
+                <div className="flex shrink-0 flex-col items-start pr-[34.17px]">
+                  <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
+                    Capacidade total somada dos atrativos monitorados:
+                    <br />
+                    85.000 pax/dia
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col items-start pr-3">
+                  <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#002f19]">
+                    Operação Dentro da Margem
+                    <br />
+                    Segura
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Country of Origin Distribution */}
+          <div className="col-[8/span_5] row-1 flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex w-full shrink-0 flex-col items-start gap-4">
+              <div className="flex w-full shrink-0 items-center justify-between">
+                <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex h-8 w-[30.73px] shrink-0 items-center justify-center rounded-[4px] bg-[#f2f3ff]">
+                    <div className="relative size-[16.667px] shrink-0">
+                      <img alt="" src="/icons/dash-origin.svg" className="absolute inset-0 block size-full" />
+                    </div>
+                  </div>
+                  <div className="h-[72px] w-[232.27px] shrink-0">
+                    <p className="text-[16px] font-semibold leading-6 text-[#131b2e]">Origem dos Viajantes</p>
+                    <p className="pt-[13.5px] text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
+                      Distribuição geográfica por
                       <br />
-                      Doméstico Líder:
+                      nacionalidade
                     </p>
                   </div>
-                  <div className="flex shrink-0 flex-col items-start pr-[41.03px]">
-                    <p className="text-[11px] font-bold leading-[14px] tracking-[0.44px] text-[#131b2e]">
-                      São Paulo (34%) • Rio de
-                      <br />
-                      Janeiro (19%)
-                    </p>
+                </div>
+                <div className="flex shrink-0 items-start rounded-[2px] bg-[#e2e7ff] p-[2px]">
+                  <button
+                    type="button"
+                    onClick={() => setOriginMode("total")}
+                    className={`mr-[-0.01px] flex shrink-0 flex-col items-center justify-center rounded-[2px] px-2 py-[2px] ${
+                      originMode === "total" ? "bg-white" : ""
+                    }`}
+                  >
+                    <span className="text-center text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#131b2e]">
+                      Total
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOriginMode("inter")}
+                    className={`flex shrink-0 flex-col items-center justify-center rounded-[2px] px-2 py-[2px] ${
+                      originMode === "inter" ? "bg-white" : ""
+                    }`}
+                  >
+                    <span className="text-center text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
+                      Inter.
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Horizontal Country Flow Bars */}
+              <div className="flex w-full shrink-0 flex-col items-start gap-2">
+                {data?.origins.map((o) => (
+                  <div key={o.label} className="flex w-full shrink-0 flex-col items-start gap-1">
+                    <div className="flex w-full shrink-0 items-center justify-between">
+                      <div className="flex shrink-0 items-center gap-[5.99px]">
+                        <p className="text-[16px] font-semibold leading-4 tracking-[0.44px] text-[#131b2e]">🌐</p>
+                        <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#131b2e]">
+                          {o.label}
+                        </p>
+                      </div>
+                      <p className="text-[13px] font-bold tracking-[0.26px] text-[#131b2e]">
+                        {o.percentage}&nbsp;
+                        <span className="font-normal text-[#414942]">({o.count})</span>
+                      </p>
+                    </div>
+                    <div className="relative h-2 w-full shrink-0 overflow-clip rounded-[12px] bg-[#eaedff]">
+                      <div
+                        className="absolute left-0 top-0 h-2 rounded-[12px]"
+                        style={{ right: `${100 - parseFloat(o.percentage)}%`, backgroundColor: o.color || "#0d472b" }}
+                      />
+                    </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex w-full shrink-0 flex-col items-start pt-4">
+              <div className="flex w-full shrink-0 items-center justify-between rounded-[4px] bg-[#f2f3ff] py-2 pl-2 pr-[8.01px]">
+                <div className="flex shrink-0 flex-col items-start pr-[64.02px]">
+                  <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
+                    Turismo Emissivo
+                    <br />
+                    Doméstico Líder:
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col items-start pr-[41.03px]">
+                  <p className="text-[11px] font-bold leading-[14px] tracking-[0.44px] text-[#131b2e]">
+                    São Paulo (34%) • Rio de
+                    <br />
+                    Janeiro (19%)
+                  </p>
                 </div>
               </div>
             </div>
@@ -827,33 +802,28 @@ export default function DashboardPage() {
 
               {/* Legend and Percent Breakdown */}
               <div className="relative grid h-[184px] min-w-px flex-[1_0_0] grid-cols-[repeat(2,minmax(0,1fr))] grid-rows-[88px_88px] gap-2">
-                {INTERESTS.map((item) => (
+                {data?.interests.map((item) => (
                   <div
-                    key={item.pct}
+                    key={item.label}
                     className="flex flex-col items-start self-start rounded-[4px] bg-[#f2f3ff] p-2"
                   >
                     <div className="flex w-full shrink-0 flex-col items-start pb-1">
                       <div className="flex w-full shrink-0 items-center gap-[6px]">
                         <div
                           className="h-3 shrink-0 rounded-[2px]"
-                          style={{ width: item.swatchW, backgroundColor: item.swatch }}
+                          style={{ width: "10px", backgroundColor: item.color || "#0d472b" }}
                         />
                         <div className="flex shrink-0 flex-col items-start">
-                          {item.label.map((line) => (
-                            <p
-                              key={line}
-                              className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#131b2e]"
-                            >
-                              {line}
-                            </p>
-                          ))}
+                          <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#131b2e]">
+                            {item.label}
+                          </p>
                         </div>
                       </div>
                     </div>
-                    <p className="text-[16px] font-bold leading-6" style={{ color: item.pctColor }}>
-                      {item.pct}
+                    <p className="text-[16px] font-bold leading-6" style={{ color: item.color || "#0d472b" }}>
+                      {item.percentage}
                     </p>
-                    <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">{item.mentions}</p>
+                    <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">{item.count} menções</p>
                   </div>
                 ))}
               </div>
@@ -879,36 +849,26 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </div>
-                <p className="text-[13px] font-medium leading-[18px] tracking-[0.26px] text-[#414942]">Hoje, 16:42</p>
               </div>
 
               <div className="flex w-full shrink-0 flex-col items-start gap-2">
-                {FEED.map((item) => (
-                  <div key={item.title} className="flex w-full shrink-0 items-start gap-2 rounded-[4px] bg-[#f2f3ff] p-2">
-                    <div
-                      className="relative shrink-0"
-                      style={{ width: item.iconW, height: item.iconH }}
-                    >
-                      <img alt="" src={item.icon} className="absolute inset-0 block size-full" />
-                    </div>
-                    <div className="relative flex min-w-px flex-[1_0_0] flex-col items-start">
-                      <div className="flex w-full shrink-0 items-center justify-between">
-                        <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#131b2e]">{item.title}</p>
-                        <p
-                          className={`text-[11px] leading-[14px] tracking-[0.44px] ${item.timeWeight}`}
-                          style={{ color: item.timeColor }}
-                        >
-                          {item.time}
-                        </p>
+                {/* O feed de notificações do backend é do app do turista (service notifications,
+                    role tourist); o painel aguarda um feed administrativo dedicado. */}
+                {data?.leaderboard.length
+                  ? data.leaderboard.slice(0, 3).map((item) => (
+                      <div key={item.id} className="flex w-full shrink-0 items-start gap-2 rounded-[4px] bg-[#f2f3ff] p-2">
+                        <div className="relative shrink-0" style={{ width: 18, height: 18 }}>
+                          <img alt="" src="/icons/dash-feed-rota.svg" className="absolute inset-0 block size-full" />
+                        </div>
+                        <div className="relative flex min-w-px flex-[1_0_0] flex-col items-start">
+                          <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#131b2e]">{item.name}</p>
+                          <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
+                            {item.value.toLocaleString()} visitas registradas no período selecionado.
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
-                        {item.desc[0]}
-                        <br />
-                        {item.desc[1]}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                    ))
+                  : null}
               </div>
             </div>
 
@@ -930,6 +890,6 @@ export default function DashboardPage() {
           </div>
         </section>
       </div>
-    </AppShell>
+    </RoleShell>
   );
 }

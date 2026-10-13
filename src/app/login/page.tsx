@@ -2,14 +2,42 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { api } from "@/lib/api";
+import { setSession } from "@/lib/session";
+import { homeFor, roleFromToken } from "@/lib/rbac";
+import { TokenResponse } from "@/types/api";
 
 export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    router.push("/dashboard");
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("matricula") as string;
+    const password = formData.get("senha") as string;
+
+    try {
+      const data = await api.post<TokenResponse>("/session", {
+        email,
+        password,
+      });
+
+      setSession(data.access_token, data.refresh_token);
+      // Cada papel vai para a sua home (employee opera o CAT, admin o painel).
+      router.push(homeFor(roleFromToken(data.access_token)));
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao realizar login. Verifique suas credenciais.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -83,14 +111,21 @@ export default function LoginPage() {
                 alt=""
                 className="h-[18.67px] w-[16.67px] shrink-0"
               />
-              <p className="text-[12px] leading-[19.5px] tracking-[0.12px] text-[#414942]">
-                <strong className="font-bold text-[#131b2e]">
-                  Aviso Institucional:
-                </strong>{" "}
-                O uso deste terminal é monitorado e auditado conforme a LGPD
-                (Lei 13.709/2018) e o Decreto Municipal de Segurança Digital.
-                Credenciais intransferíveis concedidas pela CTI/Manauscult.
-              </p>
+              <div className="flex flex-col gap-1">
+                <p className="text-[12px] leading-[19.5px] tracking-[0.12px] text-[#414942]">
+                  <strong className="font-bold text-[#131b2e]">
+                    Aviso Institucional:
+                  </strong>{" "}
+                  O uso deste terminal é monitorado e auditado conforme a LGPD
+                  (Lei 13.709/2018) e o Decreto Municipal de Segurança Digital.
+                  Credenciais intransferíveis concedidas pela CTI/Manauscult.
+                </p>
+                {errorMessage && (
+                  <p className="text-[12px] font-semibold text-red-600">
+                    {errorMessage}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Matrícula field */}
@@ -110,8 +145,9 @@ export default function LoginPage() {
                 <input
                   id="matricula"
                   name="matricula"
-                  type="text"
-                  placeholder="Ex: 948.204-1A ou nome.sobrenome"
+                  type="email"
+                  required
+                  placeholder="Ex: nome.sobrenome@manaus.gov.br"
                   className="w-full rounded-[4px] bg-[#f2f3ff] pb-3 pl-10 pr-4 pt-[11px] text-[14px] text-[#131b2e] placeholder:text-[rgba(113,121,114,0.7)] focus:outline-2 focus:outline-[#0d472b]"
                 />
                 <img
@@ -209,12 +245,21 @@ export default function LoginPage() {
             {/* Submit */}
             <button
               type="submit"
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-[4px] bg-[#0d472b] px-4 py-3 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] hover:bg-[#002f19]"
+              disabled={isLoading}
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-[4px] bg-[#0d472b] px-4 py-3 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)] hover:bg-[#002f19] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <img src="/icons/login-arrow.svg" alt="" className="size-[15px]" />
-              <span className="text-[14px] font-semibold leading-5 tracking-[0.14px] text-white">
-                Entrar no Painel
-              </span>
+              {isLoading ? (
+                <span className="text-[14px] font-semibold leading-5 tracking-[0.14px] text-white">
+                  Autenticando...
+                </span>
+              ) : (
+                <>
+                  <img src="/icons/login-arrow.svg" alt="" className="size-[15px]" />
+                  <span className="text-[14px] font-semibold leading-5 tracking-[0.14px] text-white">
+                    Entrar no Painel
+                  </span>
+                </>
+              )}
             </button>
 
             {/* Support */}

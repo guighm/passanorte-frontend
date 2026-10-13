@@ -1,8 +1,18 @@
+"use client";
+
+import { useMe } from "@/hooks/useMe";
+
 type HeaderProps = {
   breadcrumb?: string;
 };
 
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Administrador Geral (Manauscult)",
+  employee: "Operador da Rede Manauscult",
+};
+
 export function Header({ breadcrumb = "Administração Municipal" }: HeaderProps) {
+  const [me] = useMe();
   return (
     <header className="sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b border-[#eaedff] bg-[rgba(255,255,255,0.95)] px-6 pb-px backdrop-blur-[6px]">
       {/* Logo + breadcrumb */}
@@ -59,12 +69,12 @@ export function Header({ breadcrumb = "Administração Municipal" }: HeaderProps
             <div>
               <div className="flex items-center gap-[6px]">
                 <span className="text-[12px] font-semibold leading-[15px] tracking-[0.24px] text-[#131b2e]">
-                  Carlos Eduardo Ramos
+                  {me ? `${me.name} ${me.surname}` : "Carregando..."}
                 </span>
                 <span className="size-2 rounded-full bg-[#0d472b]" />
               </div>
               <p className="pb-[0.75px] text-[11px] font-semibold leading-[13.75px] tracking-[0.44px] text-[#414942]">
-                Coordenador de Turismo (Manauscult)
+                {me ? ROLE_LABELS[me.role] || me.role : "—"}
               </p>
             </div>
           </div>
