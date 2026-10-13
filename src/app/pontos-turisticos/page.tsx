@@ -155,7 +155,7 @@ export default function PontosTuristicosPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2 rounded-[4px] bg-[#f2f3ff] px-3 py-[6px]">
               <span className="size-2 rounded-[12px] bg-[#0d472b]" />
               <span className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#414942]">
@@ -180,8 +180,8 @@ export default function PontosTuristicosPage() {
 
         {/* Filter strip */}
         <div className="mt-6 flex w-full rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
-          <div className="grid w-full grid-cols-12 items-center gap-3">
-            <div className="col-span-4">
+          <div className="grid w-full grid-cols-1 items-center gap-3 sm:grid-cols-2 md:grid-cols-12">
+            <div className="md:col-span-4">
               <div className="relative">
                 <img src="/icons/pontos-search.svg" alt="" className="absolute left-3 top-1/2 size-[15px] -translate-y-1/2" />
                 <input
@@ -193,7 +193,7 @@ export default function PontosTuristicosPage() {
                 />
               </div>
             </div>
-            <div className="col-span-3">
+            <div className="md:col-span-3">
               <div className="relative">
                 <select
                   value={category}
@@ -208,7 +208,7 @@ export default function PontosTuristicosPage() {
                 <img src="/icons/pontos-chevron-down.svg" alt="" className="absolute right-[10px] top-1/2 h-[5.55px] w-[9px] -translate-y-1/2" />
               </div>
             </div>
-            <div className="col-span-3">
+            <div className="md:col-span-3">
               <div className="relative">
                 <select
                   value={status}
@@ -222,7 +222,7 @@ export default function PontosTuristicosPage() {
                 <img src="/icons/pontos-sliders.svg" alt="" className="absolute right-[10px] top-1/2 size-[13.5px] -translate-y-1/2" />
               </div>
             </div>
-            <div className="col-span-2 flex h-[34px] items-center justify-end">
+            <div className="flex min-w-0 items-center justify-end md:col-span-2">
               <button
                 type="button"
                 className="flex w-full min-w-0 items-center justify-center gap-[6px] rounded-[4px] bg-[#eaedff] px-3 py-2"
@@ -239,7 +239,7 @@ export default function PontosTuristicosPage() {
         {/* Main table */}
         <div className="mt-6 flex w-full flex-col overflow-clip rounded-[8px] bg-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]">
           <div className="w-full overflow-auto">
-            <table className="w-full table-fixed border-collapse">
+            <table className="w-full min-w-[960px] table-fixed border-collapse">
               <colgroup>
                 {COL_WIDTHS.map((width) => (
                   <col key={width} style={{ width: `${width}%` }} />
@@ -388,7 +388,7 @@ export default function PontosTuristicosPage() {
         </div>
 
         {/* Pagination footer */}
-        <div className="flex items-center justify-between bg-[rgba(242,243,255,0.6)] p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 bg-[rgba(242,243,255,0.6)] p-4">
           <div className="flex items-center gap-2">
             <p className="text-[12px] tracking-[0.12px] text-[#414942]">
               Exibindo <span className="font-normal">{rows.length}</span> de{" "}
@@ -444,7 +444,7 @@ export default function PontosTuristicosPage() {
               </div>
               <input name="name" required placeholder="Nome do atrativo" className="rounded-[4px] bg-[#f2f3ff] px-3 py-2 text-[14px] text-[#131b2e] focus:outline-2 focus:outline-[#0d472b]" />
               <textarea name="description" required placeholder="Descrição do atrativo" className="rounded-[4px] bg-[#f2f3ff] px-3 py-2 text-[14px] text-[#131b2e] focus:outline-2 focus:outline-[#0d472b]" />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <input name="latitude" type="number" step="any" required min={-90} max={90} placeholder="Latitude" className="rounded-[4px] bg-[#f2f3ff] px-3 py-2 text-[14px] text-[#131b2e] focus:outline-2 focus:outline-[#0d472b]" />
                 <input name="longitude" type="number" step="any" required min={-180} max={180} placeholder="Longitude" className="rounded-[4px] bg-[#f2f3ff] px-3 py-2 text-[14px] text-[#131b2e] focus:outline-2 focus:outline-[#0d472b]" />
               </div>

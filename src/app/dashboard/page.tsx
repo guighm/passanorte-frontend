@@ -107,7 +107,7 @@ export default function DashboardPage() {
       <div className="flex w-full flex-col items-start pb-8">
         {/* Top Operational Control Bar & Sub-Header */}
         <section className="flex w-full shrink-0 flex-col pb-4">
-          <div className="flex w-full shrink-0 items-center justify-between py-4">
+          <div className="flex w-full shrink-0 flex-col items-start justify-between py-4 md:flex-row md:items-center">
             <div className="flex shrink-0 flex-col items-start">
               <div className="flex w-full flex-col pb-1">
                 <div className="flex w-full items-center gap-1">
@@ -129,9 +129,9 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <div className="relative h-[72px] w-[525.14px] shrink-0">
+            <div className="flex w-full shrink-0 flex-col items-start gap-2 md:h-[72px] md:w-auto md:flex-row md:items-center md:gap-4">
               {/* Quick filters + refresh */}
-              <div className="absolute left-0 top-[calc(50%-20px)] flex -translate-y-1/2 items-start gap-[2px] rounded-[4px] bg-[#e2e7ff] p-1">
+              <div className="flex items-start gap-[2px] rounded-[4px] bg-[#e2e7ff] p-1">
                 {PERIODS.map((p) => (
                   <button
                     key={p.key}
@@ -153,11 +153,11 @@ export default function DashboardPage() {
                   </button>
                 ))}
               </div>
-              <div className="absolute left-[274.34px] top-[calc(50%-20px)] h-6 w-px -translate-y-1/2 bg-[#dae2fd]" />
+              <div className="hidden h-6 w-px shrink-0 bg-[#dae2fd] md:block" />
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="absolute left-[283.34px] top-[calc(50%-20px)] flex -translate-y-1/2 items-center gap-[6px] rounded-[4px] bg-white p-2 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
+                className="flex items-center gap-[6px] rounded-[4px] bg-white p-2 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
               >
                 <div className="relative h-[14.667px] w-[10.667px] shrink-0">
                   <img alt="" src="/icons/dash-refresh.svg" className="absolute inset-0 block size-full" />
@@ -169,7 +169,7 @@ export default function DashboardPage() {
               {/* Export */}
               <button
                 type="button"
-                className="absolute left-0 top-[calc(50%+20px)] flex items-center gap-[6px] rounded-[4px] bg-[#0d472b] px-4 py-2 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
+                className="flex items-center gap-[6px] rounded-[4px] bg-[#0d472b] px-4 py-2 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
               >
                 <div className="relative size-[10.667px] shrink-0">
                   <img alt="" src="/icons/dash-export.svg" className="absolute inset-0 block size-full" />
@@ -187,9 +187,9 @@ export default function DashboardPage() {
 
         {/* Metric / KPI Bento Ribbon */}
         <section className="flex w-full shrink-0 flex-col pb-6">
-          <div className="flex w-full shrink-0 items-start justify-center gap-4">
+          <div className="grid w-full shrink-0 grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {/* KPI 1 */}
-            <div className="flex min-w-px flex-[1_0_0] flex-col items-start justify-between rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col items-start justify-between rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full shrink-0 items-start justify-between">
                 <div className="flex shrink-0 flex-col items-start">
                   <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.44px] text-[#414942]">
@@ -226,7 +226,7 @@ export default function DashboardPage() {
             </div>
 
             {/* KPI 2 */}
-            <div className="flex min-w-px flex-[1_0_0] flex-col items-start justify-between rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col items-start justify-between rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full shrink-0 items-start justify-between">
                 <div className="flex shrink-0 flex-col items-start">
                   <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.44px] text-[#414942]">
@@ -261,7 +261,7 @@ export default function DashboardPage() {
             </div>
 
             {/* KPI 3 */}
-            <div className="flex min-w-px flex-[1_0_0] flex-col items-start justify-between rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col items-start justify-between rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full shrink-0 items-start justify-between">
                 <div className="flex shrink-0 flex-col items-start">
                   <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.44px] text-[#414942]">
@@ -302,7 +302,7 @@ export default function DashboardPage() {
             </div>
 
             {/* KPI 4 */}
-            <div className="flex min-w-px flex-[1_0_0] flex-col items-start justify-between rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col items-start justify-between rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full shrink-0 items-start justify-between">
                 <div className="flex shrink-0 flex-col items-start">
                   <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.44px] text-[#414942]">
@@ -347,9 +347,9 @@ export default function DashboardPage() {
 
         {/* Main Map & Heatmap Geospatial Section */}
         <section className="flex w-full shrink-0 flex-col pb-6">
-          <div className="grid w-full shrink-0 grid-cols-[repeat(12,minmax(0,1fr))] grid-rows-[554px] gap-4">
+          <div className="grid w-full shrink-0 grid-cols-1 gap-4 md:grid-cols-[repeat(12,minmax(0,1fr))] md:grid-rows-[554px]">
             {/* Interactive Styled Heatmap Canvas */}
-            <div className="col-[1/span_8] row-1 flex flex-col items-start self-start overflow-clip rounded-[8px] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
+            <div className="flex flex-col items-start self-start overflow-clip rounded-[8px] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] md:col-[1/span_8] md:row-1">
               <div className="flex w-full shrink-0 flex-col items-start justify-center gap-2 bg-white p-4">
                 <div className="flex shrink-0 items-center gap-2">
                   <div className="flex size-8 shrink-0 items-center justify-center rounded-[4px] bg-[#f2f3ff]">
@@ -379,7 +379,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Stylized Vector Map of Manaus */}
-              <div className="relative h-[440px] w-full shrink-0 overflow-clip bg-[#1a2e26]">
+              <div className="relative h-[300px] w-full shrink-0 overflow-clip bg-[#1a2e26] md:h-[440px]">
                 <img
                   alt=""
                   src="/images/dash-manaus-map.svg"
@@ -454,7 +454,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Map Lateral Panel: Realtime Density Leaderboard & CAT Status */}
-            <div className="col-[9/span_4] row-1 flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)] md:col-[9/span_4] md:row-1">
               <div className="flex w-full shrink-0 flex-col items-start gap-2">
                 <div className="flex w-full shrink-0 items-center justify-between pb-2">
                   <div className="flex shrink-0 items-center gap-2">
@@ -508,9 +508,9 @@ export default function DashboardPage() {
         </section>
 
         {/* Deep Analytics Grid: Top Attractions Table & Demographic Insights */}
-        <section className="grid w-full shrink-0 grid-cols-[repeat(12,minmax(0,1fr))] grid-rows-[556px] gap-4">
+        <section className="grid w-full shrink-0 grid-cols-1 gap-4 md:grid-cols-[repeat(12,minmax(0,1fr))] md:grid-rows-[556px]">
           {/* Top 5 Visited Attractions Table */}
-          <div className="col-[1/span_7] row-1 flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+          <div className="flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)] md:col-[1/span_7] md:row-1">
             <div className="flex w-full shrink-0 flex-col items-start gap-4">
               <div className="flex w-full shrink-0 items-center justify-between">
                 <div className="flex shrink-0 items-center gap-2">
@@ -537,31 +537,31 @@ export default function DashboardPage() {
               </div>
 
               {/* Table */}
-              <div className="flex w-full shrink-0 flex-col items-start overflow-auto">
+              <div className="flex w-full shrink-0 flex-col items-start overflow-x-auto">
                 {/* Header row */}
-                <div className="flex w-full shrink-0 items-start justify-center rounded-t-[2px] bg-[#f2f3ff]">
-                  <div className="flex w-[49.03px] shrink-0 flex-col items-start px-3 py-[17px]">
+                <div className="grid w-full min-w-[560px] shrink-0 grid-cols-[49.03fr_129.38fr_122.53fr_81.52fr_73.8fr_74.41fr] items-start rounded-t-[2px] bg-[#f2f3ff]">
+                  <div className="flex min-w-0 flex-col items-start px-3 py-[17px]">
                     <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">Pos.</p>
                   </div>
-                  <div className="flex w-[129.38px] shrink-0 flex-col items-start px-3 py-[17px]">
+                  <div className="flex min-w-0 flex-col items-start px-3 py-[17px]">
                     <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">Ponto Turístico</p>
                   </div>
-                  <div className="flex w-[122.53px] shrink-0 flex-col items-start px-3 py-[17px]">
+                  <div className="flex min-w-0 flex-col items-start px-3 py-[17px]">
                     <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">Categoria</p>
                   </div>
-                  <div className="flex w-[81.52px] shrink-0 flex-col items-end px-3 py-[17px]">
+                  <div className="flex min-w-0 flex-col items-end px-3 py-[17px]">
                     <p className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
                       Visitantes
                     </p>
                   </div>
-                  <div className="flex w-[73.8px] shrink-0 flex-col items-end px-3 py-[10px]">
+                  <div className="flex min-w-0 flex-col items-end px-3 py-[10px]">
                     <p className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
                       Share do
                       <br />
                       Candidato
                     </p>
                   </div>
-                  <div className="flex w-[74.41px] shrink-0 flex-col items-end rounded-br-[2px] rounded-tr-[2px] px-3 py-[17px]">
+                  <div className="flex min-w-0 flex-col items-end rounded-br-[2px] rounded-tr-[2px] px-3 py-[17px]">
                     <p className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
                       Variação
                     </p>
@@ -572,9 +572,9 @@ export default function DashboardPage() {
                   {data?.topAttractions.map((row, idx) => (
                     <div
                       key={row.id}
-                      className="mb-[-1px] flex w-full shrink-0 items-center justify-center border-t border-solid border-[rgba(0,0,0,0)] pt-px"
+                      className="mb-[-1px] grid w-full min-w-[560px] shrink-0 items-center border-t border-solid border-[rgba(0,0,0,0)] pt-px"
                     >
-                      <div className="flex w-[49.03px] shrink-0 flex-col items-start px-3 py-[27.5px]">
+                      <div className="flex min-w-0 flex-col items-start px-3 py-[27.5px]">
                         <p
                           className="text-[13px] font-bold leading-[18px] tracking-[0.26px]"
                           style={{ color: idx < 3 ? "#002f19" : "#414942" }}
@@ -582,7 +582,7 @@ export default function DashboardPage() {
                           {idx + 1}
                         </p>
                       </div>
-                      <div className="flex w-[117.38px] shrink-0 items-center gap-2 pl-3">
+                      <div className="flex min-w-0 items-center gap-2 pl-3">
                         <div
                           className="h-2 shrink-0 rounded-[12px]"
                           style={{ width: `${Math.max(row.percentage, 8)}%`, backgroundColor: "#0d472b" }}
@@ -593,24 +593,24 @@ export default function DashboardPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex w-[134.53px] shrink-0 flex-col items-start pb-[13.5px] pl-6 pr-3 pt-[17.5px]">
+                      <div className="flex min-w-0 flex-col items-start pb-[13.5px] pl-6 pr-3 pt-[17.5px]">
                         <div className="flex shrink-0 items-start rounded-[2px] bg-[#eaedff] px-2 py-[2px]">
                           <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
                             {row.subtext || "Geral"}
                           </p>
                         </div>
                       </div>
-                      <div className="flex w-[81.52px] shrink-0 flex-col items-end px-3 py-[27.5px]">
+                      <div className="flex min-w-0 flex-col items-end px-3 py-[27.5px]">
                         <p className="text-right text-[13px] font-bold leading-[18px] tracking-[0.26px] text-[#131b2e]">
                           {row.value.toLocaleString()}
                         </p>
                       </div>
-                      <div className="flex w-[73.8px] shrink-0 flex-col items-end px-3 py-[20px]">
+                      <div className="flex min-w-0 flex-col items-end px-3 py-[20px]">
                         <p className="text-right text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
                           {row.flow || "N/A"}
                         </p>
                       </div>
-                      <div className="flex w-[74.41px] shrink-0 flex-col items-end px-3 py-[29px]">
+                      <div className="flex min-w-0 flex-col items-end px-3 py-[29px]">
                         <p
                           className="text-right text-[11px] font-semibold leading-[14px] tracking-[0.44px]"
                           style={{ color: row.percentage > 50 ? "#002f19" : "#ba1a1a" }}
@@ -646,7 +646,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Country of Origin Distribution */}
-          <div className="col-[8/span_5] row-1 flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+          <div className="flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)] md:col-[8/span_5] md:row-1">
             <div className="flex w-full shrink-0 flex-col items-start gap-4">
               <div className="flex w-full shrink-0 items-center justify-between">
                 <div className="flex shrink-0 items-center gap-2">
@@ -655,7 +655,7 @@ export default function DashboardPage() {
                       <img alt="" src="/icons/dash-origin.svg" className="absolute inset-0 block size-full" />
                     </div>
                   </div>
-                  <div className="h-[72px] w-[232.27px] shrink-0">
+                  <div className="h-[72px] w-full max-w-[232px] shrink-0">
                     <p className="text-[16px] font-semibold leading-6 text-[#131b2e]">Origem dos Viajantes</p>
                     <p className="pt-[13.5px] text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
                       Distribuição geográfica por
@@ -739,9 +739,9 @@ export default function DashboardPage() {
         </section>
 
         {/* Bottom Analytics: Tourist Interests Donut + Institutional Actions Quick Bar */}
-        <section className="grid w-full shrink-0 grid-cols-[repeat(12,minmax(0,1fr))] grid-rows-[382px] gap-4">
+        <section className="grid w-full shrink-0 grid-cols-1 gap-4 md:grid-cols-[repeat(12,minmax(0,1fr))] md:grid-rows-[382px]">
           {/* Categories of Interest / Thematic Preferences */}
-          <div className="col-[1/span_6] row-1 flex flex-col items-start gap-4 self-start rounded-[8px] bg-white px-4 pb-[118px] pt-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+          <div className="flex flex-col items-start gap-4 self-start rounded-[8px] bg-white px-4 pb-4 pt-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)] md:col-[1/span_6] md:row-1 md:pb-[118px]">
             <div className="flex w-full shrink-0 items-center gap-2">
               <div className="flex size-8 shrink-0 items-center justify-center rounded-[4px] bg-[#f2f3ff]">
                 <div className="relative size-[16.667px] shrink-0">
@@ -755,7 +755,7 @@ export default function DashboardPage() {
                 </p>
               </div>
             </div>
-            <div className="flex w-full shrink-0 items-center gap-6">
+            <div className="flex w-full shrink-0 flex-wrap items-center gap-6">
               {/* Donut Chart SVG */}
               <div className="relative flex size-[176px] shrink-0 items-center justify-center">
                 <div
@@ -831,7 +831,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Administrative Quick Dispatch & Operational Feed */}
-          <div className="col-[7/span_6] row-1 flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+          <div className="flex flex-col items-start justify-between self-start rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)] md:col-[7/span_6] md:row-1">
             <div className="flex w-full shrink-0 flex-col items-start gap-4">
               <div className="flex w-full shrink-0 items-center justify-between">
                 <div className="flex shrink-0 items-center gap-2">

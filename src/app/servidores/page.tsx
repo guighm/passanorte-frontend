@@ -7,7 +7,7 @@ import { Employee } from "@/types/api";
 
 const PAGE_SIZE = 6;
 const GRID_COLS =
-  "grid grid-cols-[166.39fr_187.33fr_164.22fr_135.66fr_171.47fr_150.93fr]";
+  "grid w-full min-w-[840px] grid-cols-[166.39fr_187.33fr_164.22fr_135.66fr_171.47fr_150.93fr]";
 
 const AVATAR_STYLES = [
   { bg: "#aed6fe", text: "#396285" },
@@ -85,7 +85,7 @@ function MetricCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-1 flex-col justify-between rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+    <div className="flex min-w-0 flex-col justify-between rounded-[8px] bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
       <div className="flex w-full items-center justify-between">
         <span className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#414942]">
           {label}
@@ -210,7 +210,7 @@ export default function ServidoresPage() {
       onChange={(event) => onSelect(event.target.value)}
       aria-label={label}
       style={{ width }}
-      className="h-10 appearance-none rounded-[4px] bg-white py-px pl-3 pr-6 text-[12px] font-semibold leading-[15px] tracking-[0.24px] text-[#131b2e] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] focus:outline-2 focus:outline-[#0d472b]"
+      className="h-10 max-w-full appearance-none rounded-[4px] bg-white py-px pl-3 pr-6 text-[12px] font-semibold leading-[15px] tracking-[0.24px] text-[#131b2e] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] focus:outline-2 focus:outline-[#0d472b]"
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>
@@ -224,7 +224,7 @@ export default function ServidoresPage() {
     <RoleShell breadcrumb="Servidores & Acessos">
       <div className="flex w-full flex-col pb-8">
         {/* 1. Cabeçalho da página */}
-        <header className="flex w-full items-center justify-between py-6">
+        <header className="flex w-full flex-col items-start justify-between gap-4 py-6 md:flex-row md:items-center">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-1">
               <img src="/icons/serv-shield.svg" alt="" className="h-[12.5px] w-[10px]" />
@@ -248,7 +248,7 @@ export default function ServidoresPage() {
               Município de Manaus.
             </p>
           </div>
-          <div className="flex flex-col items-start justify-center gap-2 pr-[123.83px]">
+          <div className="flex flex-wrap items-start justify-center gap-2">
             <button
               type="button"
               className="flex items-center gap-1 rounded-[4px] bg-[#e2e7ff] px-4 py-2 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
@@ -272,7 +272,7 @@ export default function ServidoresPage() {
         </header>
 
         {/* 2. Painel de indicadores */}
-        <section className="flex w-full items-start justify-center gap-4 pb-6">
+        <section className="grid w-full grid-cols-1 items-stretch gap-4 pb-6 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard
             label="Total Servidores Ativos"
             icon="/icons/serv-card-badge.svg"
@@ -364,8 +364,8 @@ export default function ServidoresPage() {
         {/* 4. Tabela de listagem de servidores & acessos */}
         <section className="w-full overflow-clip rounded-[8px] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
           {/* Barra de filtros e busca */}
-          <div className="flex w-full items-center justify-between bg-[#f2f3ff] p-4">
-            <div className="relative w-[360px]">
+          <div className="flex w-full flex-col items-start justify-between gap-4 bg-[#f2f3ff] p-4 md:flex-row md:items-center">
+            <div className="relative w-full md:w-[360px]">
               <input
                 type="text"
                 value={busca}
@@ -380,8 +380,8 @@ export default function ServidoresPage() {
                 className="absolute left-[14px] top-1/2 size-[13.5px] -translate-y-1/2"
               />
             </div>
-            <div className="flex w-[568px] flex-col items-start gap-2">
-              <div className="flex items-start gap-7">
+            <div className="flex w-full flex-col items-start gap-2 md:w-[568px]">
+              <div className="flex flex-wrap items-start gap-4 md:gap-7">
                 {filtros(
                   setPerfil,
                   perfil,
@@ -409,7 +409,7 @@ export default function ServidoresPage() {
           </div>
 
           {/* Tabela responsiva */}
-          <div className="w-full">
+          <div className="w-full overflow-x-auto">
             {/* Header */}
             <div className={`${GRID_COLS} w-full items-start bg-[rgba(226,231,255,0.6)]`}>
               <div className="px-4 py-3">

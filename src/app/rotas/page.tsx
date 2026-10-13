@@ -175,7 +175,7 @@ export default function RotasPage() {
       <div className="flex flex-col items-start">
         {/* Page header */}
         <div className="flex w-full flex-col pb-4 pt-4">
-          <div className="flex w-full items-center justify-between">
+          <div className="flex w-full flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div className="flex w-full flex-col gap-1">
               <div className="flex w-full items-center gap-1">
                 <span className="rounded-[2px] bg-[#0d472b] px-1 py-0.5 text-[11px] font-semibold uppercase leading-[14px] tracking-[0.55px] text-white">
@@ -194,7 +194,7 @@ export default function RotasPage() {
                 concluir os roteiros.
               </p>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 className="flex items-center gap-1.5 rounded-[2px] bg-[#e2e7ff] px-4 py-2 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
@@ -220,8 +220,8 @@ export default function RotasPage() {
 
         {/* KPIs */}
         <div className="flex w-full flex-col pb-6">
-          <div className="flex w-full items-start justify-center gap-4">
-            <div className="flex min-w-0 flex-1 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+          <div className="grid w-full grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="flex min-w-0 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full flex-col pb-2">
                 <div className="flex w-full items-center justify-between">
                   <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#414942]">
@@ -245,7 +245,7 @@ export default function RotasPage() {
               </div>
             </div>
 
-            <div className="flex min-w-0 flex-1 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full flex-col pb-2">
                 <div className="flex w-full items-center justify-between">
                   <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#414942]">
@@ -269,7 +269,7 @@ export default function RotasPage() {
               </div>
             </div>
 
-            <div className="flex min-w-0 flex-1 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full flex-col pb-2">
                 <div className="flex w-full items-center justify-between">
                   <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#414942]">
@@ -296,7 +296,7 @@ export default function RotasPage() {
               </div>
             </div>
 
-            <div className="flex min-w-0 flex-1 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full flex-col pb-2">
                 <div className="flex w-full items-center justify-between">
                   <p className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#414942]">
@@ -364,8 +364,8 @@ export default function RotasPage() {
               </div>
 
               {/* Form */}
-              <div className="grid w-full grid-cols-12 gap-6 pt-4">
-                <div className="col-span-8 flex flex-col gap-4">
+              <div className="grid w-full grid-cols-1 gap-6 pt-4 md:grid-cols-12">
+                <div className="col-span-1 flex flex-col gap-4 md:col-span-8">
                   <div className="flex w-full flex-col gap-1">
                     <label
                       htmlFor="roteiro-nome"
@@ -449,7 +449,7 @@ export default function RotasPage() {
                 </div>
 
                 {/* Preview (4 cols) */}
-                <div className="col-span-4 flex flex-col justify-between rounded-lg bg-[#f2f3ff] p-4">
+                <div className="col-span-1 flex flex-col justify-between rounded-lg bg-[#f2f3ff] p-4 md:col-span-4">
                   <div className="flex w-full flex-col gap-1">
                     <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.55px] text-[#414942]">
                       Pré-visualização do percurso
@@ -505,9 +505,9 @@ export default function RotasPage() {
 
         {/* Filter & management toolbar */}
         <div className="flex w-full flex-col pb-4">
-          <div className="flex w-full items-center justify-between">
+          <div className="flex w-full flex-col items-start justify-between gap-2 md:flex-row md:items-center">
             <div className="flex flex-col items-start gap-2">
-              <div className="relative w-[320px]">
+              <div className="relative w-full sm:w-[320px]">
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
@@ -586,7 +586,7 @@ function RouteRow({
 
   return (
     <div className="flex w-full flex-col rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
-      <div className="flex w-full items-center justify-between">
+      <div className="flex w-full flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         {/* Identification */}
         <div className="flex min-w-0 flex-1 items-start gap-4">
           <div
@@ -637,7 +637,7 @@ function RouteRow({
         </div>
 
         {/* Telemetry stats & actions */}
-        <div className="flex shrink-0 flex-col items-end justify-center gap-6 pl-6">
+        <div className="flex shrink-0 flex-col items-start justify-center gap-6 md:items-end md:pl-6">
           <div className="flex items-center gap-6">
             <div className="flex flex-col items-end">
               <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.44px] text-[#414942]">

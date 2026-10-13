@@ -17,6 +17,11 @@ type NavSection = {
   items: NavItem[];
 };
 
+type SidebarProps = {
+  open?: boolean;
+  onClose?: () => void;
+};
+
 const SECTIONS: NavSection[] = [
   {
     title: "Visão Geral",
@@ -48,14 +53,19 @@ const SECTIONS: NavSection[] = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [me] = useMe();
   // Itens visíveis conforme o papel (mesmo mapa das páginas: src/lib/rbac.ts).
   const role = me?.role ?? null;
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col justify-between bg-[#002f19] shadow-[0px_1px_4px_rgba(0,0,0,0.12)]">
+    <aside
+      aria-label="Menu principal"
+      className={`fixed inset-y-0 left-0 z-40 flex h-dvh w-64 shrink-0 flex-col justify-between bg-[#002f19] shadow-[0px_1px_4px_rgba(0,0,0,0.12)] transition-transform duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+        open ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         {/* Brand */}
         <div className="flex h-16 w-full shrink-0 items-center gap-2 border-b border-[#0d472b] px-4 pb-px">
@@ -100,6 +110,7 @@ export function Sidebar() {
                     <Link
                       href={item.href}
                       aria-current={pathname === item.href ? "page" : undefined}
+                      onClick={onClose}
                       className={`flex items-center gap-2 rounded-[4px] p-2 text-[#eef0ff] hover:bg-[rgba(13,71,43,0.6)] ${
                         pathname === item.href ? "bg-[rgba(182,240,200,0.14)]" : ""
                       }`}
@@ -145,7 +156,10 @@ export function Sidebar() {
         </div>
         <button
           type="button"
-          onClick={logoutAndRedirect}
+          onClick={() => {
+            onClose?.();
+            logoutAndRedirect();
+          }}
           className="mt-2 flex w-full items-center justify-between rounded-[4px] p-2 hover:bg-[rgba(13,71,43,0.6)]"
         >
           <span className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#eef0ff]">

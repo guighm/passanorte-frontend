@@ -10,7 +10,7 @@ import type { EventApi, TouristSpot, TouristSpotsResponse } from "@/types/catalo
 function SectionHeader() {
   return (
     <div className="flex flex-col pb-6">
-      <div className="flex items-end justify-between pt-2">
+      <div className="flex flex-col items-start justify-between gap-4 pt-2 md:flex-row md:items-end">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">
             <span className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.55px] text-[#0d472b]">
@@ -37,7 +37,7 @@ function SectionHeader() {
             PassaNorte.
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             className="flex items-center gap-1 rounded-[4px] bg-[#f2f3ff] px-4 py-2 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
@@ -80,9 +80,9 @@ function KpiCards({ events, spots }: { events: EventApi[]; spots: TouristSpot[] 
 
   return (
     <div className="flex flex-col pb-6">
-      <div className="flex w-full items-start gap-4">
+      <div className="grid w-full grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {/* Card 1 */}
-        <div className="flex min-w-0 flex-1 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+        <div className="flex min-w-0 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
           <div className="flex w-full items-start justify-between">
             <div className="flex flex-col">
               <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.55px] text-[#414942]">
@@ -121,7 +121,7 @@ function KpiCards({ events, spots }: { events: EventApi[]; spots: TouristSpot[] 
           </div>
         </div>
         {/* Card 2 */}
-        <div className="flex min-w-0 flex-1 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+        <div className="flex min-w-0 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
           <div className="flex w-full items-start justify-between">
             <div className="flex min-w-0 flex-col">
               <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.55px] text-[#414942]">
@@ -154,7 +154,7 @@ function KpiCards({ events, spots }: { events: EventApi[]; spots: TouristSpot[] 
           </div>
         </div>
         {/* Card 3 */}
-        <div className="flex min-w-0 flex-1 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+        <div className="flex min-w-0 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
           <div className="flex w-full items-start justify-between">
             <div className="flex flex-col">
               <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.55px] text-[#414942]">
@@ -184,7 +184,7 @@ function KpiCards({ events, spots }: { events: EventApi[]; spots: TouristSpot[] 
           </div>
         </div>
         {/* Card 4 */}
-        <div className="flex min-w-0 flex-1 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+        <div className="flex min-w-0 flex-col justify-between rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
           <div className="flex w-full items-start justify-between">
             <div className="flex flex-col gap-[7px] pt-[7px]">
               <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.55px] text-[#414942]">
@@ -318,7 +318,7 @@ function RegistrationForm({
         </div>
 
         {open ? (
-          <div className="grid w-[928px] max-w-full grid-cols-12 gap-6">
+          <div className="grid w-full grid-cols-12 gap-6 xl:max-w-[1104px] xl:self-center">
             {/* Columns 1 & 2 */}
             <div className="col-span-12 flex flex-col items-start gap-4">
               <FormField label="Nome Oficial do Evento" required>
@@ -470,7 +470,7 @@ function FiltersSection() {
   return (
     <div className="flex flex-col pb-4">
       <div className="flex w-full flex-col gap-4 rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
-        <div className="flex w-full items-center justify-between">
+        <div className="flex w-full flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div className="relative h-10 w-[72px] shrink-0">
             <div className="h-10 w-full rounded-[4px] bg-[#f2f3ff]" />
             <img
@@ -479,8 +479,8 @@ function FiltersSection() {
               className="absolute left-[14.5px] top-[12.5px] size-[15px]"
             />
           </div>
-          <div className="flex h-20 w-[872px] max-w-full flex-col">
-            <div className="flex items-start gap-2">
+          <div className="flex w-full flex-col">
+            <div className="flex flex-wrap items-start gap-2">
               {[
                 { label: "Todos os Pontos Turísticos", w: 252 },
                 { label: "Acesso: Todos", w: 243 },
@@ -531,7 +531,7 @@ function FiltersSection() {
             </div>
           </div>
         </div>
-        <div className="flex w-full items-center gap-1 pt-1">
+        <div className="flex w-full flex-wrap items-center gap-1 pt-1">
           <span className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
             Filtros ativos:
           </span>
@@ -570,7 +570,7 @@ function FiltersSection() {
 
 const MONTHS_PT = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 const TABLE_GRID =
-  "grid grid-cols-[133.58px_183.61px_118.61px_104.58px_176px_129.58px_minmax(0,1fr)]";
+  "grid w-full min-w-[900px] grid-cols-[133.58fr_183.61fr_118.61fr_104.58fr_176fr_129.58fr_minmax(0,1fr)]";
 
 function toEventRow(event: EventApi, spot: TouristSpot | undefined, nowIso: string): EventRow {
   const occurs = new Date(event.occurs_at);
@@ -673,8 +673,9 @@ function EventsTable({
   return (
     <div className="flex flex-col pb-6">
       <div className="flex w-full flex-col overflow-hidden rounded-lg bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
+        <div className="w-full overflow-x-auto">
         {/* Header row */}
-        <div className={`${TABLE_GRID} w-full items-start bg-[#f2f3ff]`}>
+        <div className={`${TABLE_GRID} items-start bg-[#f2f3ff]`}>
           <div className="flex flex-col px-4 py-[26px]">
             <span className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.55px] text-[#414942]">
               Data &amp; Horário
@@ -723,7 +724,7 @@ function EventsTable({
             rows.map((row, index) => (
               <div
                 key={row.id}
-                className={`${TABLE_GRID} w-full items-center border-t border-[#eaedff] ${index === 0 ? "border-t-0" : ""}`}
+                className={`${TABLE_GRID} items-center border-t border-[#eaedff] ${index === 0 ? "border-t-0" : ""}`}
               >
                 {/* Date & time */}
                 <div className="flex items-center gap-2 px-4 py-4">
@@ -795,6 +796,7 @@ function EventsTable({
             ))
           )}
         </div>
+        </div>
         {/* Pagination footer */}
         <div className="flex w-full items-center justify-between bg-[#f2f3ff] px-4 py-3">
           <p className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
@@ -848,11 +850,11 @@ function MiniCards() {
 
   return (
     <div className="flex flex-col pb-6">
-      <div className="flex w-full items-start gap-4">
+      <div className="grid w-full grid-cols-1 items-stretch gap-4 md:grid-cols-3">
         {cards.map((card) => (
           <div
             key={card.title}
-            className="flex w-[314.66px] flex-1 items-center gap-4 rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
+            className="flex min-w-0 items-center gap-4 rounded-lg bg-white p-4 shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
           >
             <div
               className={`flex size-12 shrink-0 items-center justify-center rounded-lg ${card.iconBg}`}
@@ -880,7 +882,7 @@ function MiniCards() {
 
 function AuditFooter() {
   return (
-    <div className="flex w-full items-center justify-between pt-4">
+    <div className="flex w-full flex-col items-start gap-2 pt-4 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-[2px]">
         <p className="text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#131b2e]">
           Prefeitura de Manaus • Manauscult - Fundação Municipal de Cultura, Turismo e Eventos
@@ -890,7 +892,7 @@ function AuditFooter() {
           Municipal nº 2.450/2021)
         </p>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <p className="pr-4 text-[11px] font-semibold leading-[14px] tracking-[0.44px] text-[#414942]">
           Versão: 2.4.0-gov
         </p>

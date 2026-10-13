@@ -54,6 +54,13 @@ const AUDIT_BADGES: Record<AuditKind, { bg: string; text: string; icon: string; 
 // Ponto de reposição (limiar local): abaixo disso o item entra em alerta.
 const LOW_STOCK_THRESHOLD = 100;
 
+// Grids das tabelas em fr proporcionais (preservam as razões de px do Figma)
+// + piso min-width compartilhado entre header e body dentro do scroller.
+const INVENTORY_GRID =
+  "grid w-full min-w-[640px] grid-cols-[155.5fr_127.53fr_63.34fr_78.19fr_112fr_88.88fr_72fr]";
+const AUDIT_GRID =
+  "grid w-full min-w-[820px] grid-cols-[125.06fr_163.06fr_196.56fr_95.23fr_228.5fr_167.58fr]";
+
 const ITEM_IMAGES = [
   { match: /kit|souvenir/i, src: "/icons/estoque-kit.png" },
   { match: /pin/i, src: "/icons/estoque-pin.png" },
@@ -252,20 +259,20 @@ export default function EstoqueBeneficiosPage() {
       <div className="flex w-full flex-col items-start pb-8">
         {/* Top Navigation Context & Action Bar */}
         <div className="flex w-full shrink-0 flex-col items-start pb-6">
-          <div className="flex w-full shrink-0 items-end justify-between py-4">
-            <div className="flex shrink-0 flex-col items-start gap-1">
-              <div className="flex w-full shrink-0 items-center gap-1">
-                <span className="whitespace-nowrap text-[16px] uppercase leading-6 tracking-[0.8px] text-[#396285]">
+          <div className="flex w-full shrink-0 flex-col items-start justify-between gap-4 py-4 md:flex-row md:items-end">
+            <div className="flex min-w-0 flex-col items-start gap-1">
+              <div className="flex w-full flex-wrap items-center gap-1">
+                <span className="text-[12px] font-semibold uppercase leading-6 tracking-[0.8px] text-[#396285] md:text-[16px]">
                   MÓDULO DE GAMIFICAÇÃO &amp; LOGÍSTICA
                 </span>
-                <span className="text-[16px] uppercase leading-6 tracking-[0.8px] text-[#396285]">
+                <span className="text-[12px] uppercase leading-6 tracking-[0.8px] text-[#396285] md:text-[16px]">
                   •
                 </span>
-                <span className="whitespace-nowrap text-[16px] uppercase leading-6 tracking-[0.8px] text-[#396285]">
+                <span className="text-[12px] font-semibold uppercase leading-6 tracking-[0.8px] text-[#396285] md:text-[16px]">
                   MANAUSCULT • PREFEITURA DE MANAUS
                 </span>
               </div>
-              <h1 className="whitespace-nowrap text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">
+              <h1 className="text-[32px] font-bold leading-10 tracking-[-0.8px] text-[#131b2e]">
                 Estoque &amp; Distribuição de Benefícios
               </h1>
               <p className="max-w-[505px] text-[14px] leading-5 text-[#414942]">
@@ -274,7 +281,7 @@ export default function EstoqueBeneficiosPage() {
                 passaporte cultural.
               </p>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 className="flex h-9 shrink-0 items-center gap-1.5 rounded-[4px] bg-[#eaedff] px-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
@@ -299,9 +306,9 @@ export default function EstoqueBeneficiosPage() {
 
         {/* KPI Metricas Dashboard */}
         <div className="flex w-full shrink-0 flex-col items-start pb-8">
-          <div className="flex w-full shrink-0 items-start justify-center gap-4">
+          <div className="grid w-full shrink-0 grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {/* Card 1 */}
-            <div className="flex min-w-0 flex-1 flex-col items-start justify-between rounded-[8px] bg-white p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col items-start justify-between rounded-[8px] bg-white p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full shrink-0 items-start justify-between">
                 <span className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#414942]">
                   Total de Itens em Estoque
@@ -342,7 +349,7 @@ export default function EstoqueBeneficiosPage() {
             </div>
 
             {/* Card 2 */}
-            <div className="flex min-w-0 flex-1 flex-col items-start justify-between rounded-[8px] bg-white p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col items-start justify-between rounded-[8px] bg-white p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full shrink-0 items-start justify-between">
                 <span className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#414942]">
                   Itens Concedidos no Mês
@@ -384,7 +391,7 @@ export default function EstoqueBeneficiosPage() {
             </div>
 
             {/* Card 3: Alert */}
-            <div className="flex min-w-0 flex-1 flex-col items-start justify-between rounded-[8px] bg-white p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col items-start justify-between rounded-[8px] bg-white p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full shrink-0 items-start justify-between">
                 <span className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#414942]">
                   Alerta de Estoque Crítico
@@ -429,7 +436,7 @@ export default function EstoqueBeneficiosPage() {
             </div>
 
             {/* Card 4 */}
-            <div className="flex min-w-0 flex-1 flex-col items-start justify-between rounded-[8px] bg-white p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
+            <div className="flex min-w-0 flex-col items-start justify-between rounded-[8px] bg-white p-4 drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]">
               <div className="flex w-full shrink-0 items-start justify-between">
                 <span className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#414942]">
                   Posto com Maior Demanda
@@ -476,9 +483,9 @@ export default function EstoqueBeneficiosPage() {
 
         {/* Main Grid: Tabela Principal + Painel Lateral */}
         <div className="flex w-full shrink-0 flex-col items-start pb-8">
-          <div className="grid w-full shrink-0 grid-cols-12 gap-6">
+          <div className="grid w-full shrink-0 grid-cols-1 gap-6 md:grid-cols-12">
             {/* Coluna Esquerda: Listagem e Gestão */}
-            <div className="col-span-8 flex flex-col items-start overflow-clip self-start rounded-[8px] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
+            <div className="flex flex-col items-start overflow-clip self-start rounded-[8px] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] md:col-span-8">
               {/* Header da Tabela com Filtros */}
               <div className="flex w-full shrink-0 flex-col items-start gap-2 bg-white p-4">
                 <div className="flex w-full shrink-0 items-center justify-between">
@@ -500,8 +507,8 @@ export default function EstoqueBeneficiosPage() {
                     </span>
                   </div>
                 </div>
-                <div className="grid w-full shrink-0 grid-cols-12 gap-2 pt-1">
-                  <div className="col-span-6 flex flex-col items-start self-start">
+                <div className="grid w-full shrink-0 grid-cols-1 gap-2 pt-1 sm:grid-cols-12">
+                  <div className="flex flex-col items-start self-start sm:col-span-6">
                     <div className="relative flex h-9 w-full items-center overflow-clip rounded-[4px] bg-[#f2f3ff]">
                       <input
                         type="text"
@@ -517,7 +524,7 @@ export default function EstoqueBeneficiosPage() {
                       />
                     </div>
                   </div>
-                  <div className="col-span-3">
+                  <div className="sm:col-span-3">
                     <select
                       value={category}
                       onChange={(event) => setCategory(event.target.value)}
@@ -531,7 +538,7 @@ export default function EstoqueBeneficiosPage() {
                       ))}
                     </select>
                   </div>
-                  <div className="col-span-3">
+                  <div className="sm:col-span-3">
                     <select
                       value={status}
                       onChange={(event) => setStatus(event.target.value)}
@@ -547,21 +554,21 @@ export default function EstoqueBeneficiosPage() {
               </div>
 
               {/* Tabela Responsiva de Inventário */}
-              <div className="w-full shrink-0 overflow-auto">
-                <div className="flex w-[697.44px] shrink-0 flex-col items-start">
+              <div className="w-full shrink-0 overflow-x-auto">
+                <div className="flex w-full shrink-0 flex-col items-start">
                   {/* Header Row */}
-                  <div className="flex w-full shrink-0 items-start justify-center bg-[#f2f3ff]">
-                    <div className="flex w-[155.5px] shrink-0 flex-col items-start px-4 py-[17px]">
+                  <div className={`${INVENTORY_GRID} shrink-0 items-start bg-[#f2f3ff]`}>
+                    <div className="flex min-w-0 flex-col items-start px-4 py-[17px]">
                       <span className="whitespace-nowrap text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                         ITEM &amp; CÓDIGO SKU
                       </span>
                     </div>
-                    <div className="flex w-[127.53px] shrink-0 flex-col items-start px-2 py-[17px]">
+                    <div className="flex min-w-0 flex-col items-start px-2 py-[17px]">
                       <span className="whitespace-nowrap text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                         ROTA VINCULADA
                       </span>
                     </div>
-                    <div className="flex w-[63.34px] shrink-0 flex-col items-end px-2 py-[10px] text-right">
+                    <div className="flex min-w-0 flex-col items-end px-2 py-[10px] text-right">
                       <span className="text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                         ALMOX.
                       </span>
@@ -569,7 +576,7 @@ export default function EstoqueBeneficiosPage() {
                         SEDE
                       </span>
                     </div>
-                    <div className="flex w-[78.19px] shrink-0 flex-col items-end px-2 py-[10px] text-right">
+                    <div className="flex min-w-0 flex-col items-end px-2 py-[10px] text-right">
                       <span className="text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                         POSTOS
                       </span>
@@ -577,7 +584,7 @@ export default function EstoqueBeneficiosPage() {
                         CAT
                       </span>
                     </div>
-                    <div className="flex w-[112px] shrink-0 flex-col items-end px-4 py-[10px] text-right">
+                    <div className="flex min-w-0 flex-col items-end px-4 py-[10px] text-right">
                       <span className="text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                         SALDO
                       </span>
@@ -585,12 +592,12 @@ export default function EstoqueBeneficiosPage() {
                         TOTAL
                       </span>
                     </div>
-                    <div className="flex w-[88.88px] shrink-0 flex-col items-start px-2 py-[17px]">
+                    <div className="flex min-w-0 flex-col items-start px-2 py-[17px]">
                       <span className="whitespace-nowrap text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                         STATUS
                       </span>
                     </div>
-                    <div className="flex w-[72px] shrink-0 flex-col items-center px-2 py-[17px]">
+                    <div className="flex min-w-0 flex-col items-center px-2 py-[17px]">
                       <span className="whitespace-nowrap text-center text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                         AÇÕES
                       </span>
@@ -612,10 +619,10 @@ export default function EstoqueBeneficiosPage() {
                       return (
                         <div
                           key={item.id}
-                          className="flex w-full shrink-0 items-center justify-center py-3 pl-4 pr-2"
+                          className={`${INVENTORY_GRID} shrink-0 items-center py-3 pl-4 pr-2`}
                         >
                           {/* Item & SKU */}
-                          <div className="flex w-[123.5px] shrink-0 items-center gap-2">
+                          <div className="flex min-w-0 items-center gap-2">
                             <div className="relative size-10 shrink-0 overflow-hidden rounded-[4px] bg-[#eaedff]">
                               <img
                                 src={item.image}
@@ -635,7 +642,7 @@ export default function EstoqueBeneficiosPage() {
                             </div>
                           </div>
                           {/* Rota vinculada */}
-                          <div className="flex w-[127.53px] shrink-0 flex-col items-start px-2 pl-6">
+                          <div className="flex min-w-0 flex-col items-start px-2 pl-6">
                             <div className="flex shrink-0 items-center gap-1 rounded-[2px] bg-[#eaedff] py-0.5 pl-2 pr-2">
                               <img
                                 src="/icons/estoque-route.svg"
@@ -649,13 +656,13 @@ export default function EstoqueBeneficiosPage() {
                             </div>
                           </div>
                           {/* Almox Sede */}
-                          <div className="flex w-[63.34px] shrink-0 flex-col items-end px-2">
+                          <div className="flex min-w-0 flex-col items-end px-2">
                             <span className="whitespace-nowrap text-right text-[12px] font-medium leading-4 tracking-[0.12px] text-[#131b2e]">
                               {item.almox}
                             </span>
                           </div>
                           {/* Postos CAT */}
-                          <div className="flex w-[78.19px] shrink-0 flex-col items-end px-2">
+                          <div className="flex min-w-0 flex-col items-end px-2">
                             <span className="whitespace-nowrap text-right text-[12px] font-medium leading-4 tracking-[0.12px] text-[#131b2e]">
                               {item.postos}
                             </span>
@@ -665,7 +672,7 @@ export default function EstoqueBeneficiosPage() {
                             />
                           </div>
                           {/* Saldo Total */}
-                          <div className="flex w-[112px] shrink-0 flex-col items-start gap-1 px-4">
+                          <div className="flex min-w-0 flex-col items-start gap-1 px-4">
                             <span
                               className="whitespace-nowrap text-right text-[16px] font-bold leading-6"
                               style={{ color: item.saldoColor }}
@@ -683,7 +690,7 @@ export default function EstoqueBeneficiosPage() {
                             </div>
                           </div>
                           {/* Status */}
-                          <div className="flex w-[88.88px] shrink-0 flex-col items-start px-2">
+                          <div className="flex min-w-0 flex-col items-start px-2">
                             <div
                               className="flex shrink-0 items-center gap-1 rounded-[2px] py-0.5 pl-2 pr-2"
                               style={{ backgroundColor: badge.bg }}
@@ -700,7 +707,7 @@ export default function EstoqueBeneficiosPage() {
                             </div>
                           </div>
                           {/* Ações */}
-                          <div className="flex w-[64px] shrink-0 items-center justify-center gap-1 pl-2">
+                          <div className="flex min-w-0 items-center justify-center gap-1 pl-2">
                             <button
                               type="button"
                               aria-label="Editar saldo"
@@ -768,7 +775,7 @@ export default function EstoqueBeneficiosPage() {
             </div>
 
             {/* Coluna Direita: Painel Integrado de Entrada e Transferência */}
-            <div className="col-span-4 flex flex-col items-start gap-4 self-start pb-[47.5px]">
+            <div className="flex flex-col items-start gap-4 self-start md:col-span-4">
               {/* Reposição Rápida de Estoque */}
               <form
                 onSubmit={handleSubmit}
@@ -800,11 +807,11 @@ export default function EstoqueBeneficiosPage() {
                       <span className="uppercase text-[11px] font-semibold leading-3.5 tracking-[0.55px] text-[#414942]">
                         TIPO DE OPERAÇÃO
                       </span>
-                      <div className="flex w-full shrink-0 items-start justify-center gap-2">
+                      <div className="grid w-full shrink-0 grid-cols-2 gap-2">
                         <button
                           type="button"
                           onClick={() => setOperation("entrada")}
-                          className={`flex w-[126.66px] shrink-0 items-center justify-center gap-1.5 rounded-[4px] p-2 ${
+                          className={`flex min-w-0 items-center justify-center gap-1.5 rounded-[4px] p-2 ${
                             operation === "entrada"
                               ? "bg-[#0d472b] text-white"
                               : "bg-[#eaedff] text-[#131b2e]"
@@ -822,7 +829,7 @@ export default function EstoqueBeneficiosPage() {
                         <button
                           type="button"
                           onClick={() => setOperation("transferencia")}
-                          className={`flex w-[126.67px] shrink-0 items-center justify-center gap-1.5 rounded-[4px] p-2 ${
+                          className={`flex min-w-0 items-center justify-center gap-1.5 rounded-[4px] p-2 ${
                             operation === "transferencia"
                               ? "bg-[#0d472b] text-white"
                               : "bg-[#eaedff] text-[#131b2e]"
@@ -1049,11 +1056,11 @@ export default function EstoqueBeneficiosPage() {
               </button>
             </div>
             {/* Table */}
-            <div className="w-full shrink-0 overflow-auto">
+            <div className="w-full shrink-0 overflow-x-auto">
               <div className="flex w-full shrink-0 flex-col items-start">
                 {/* Header Row */}
-                <div className="flex w-full shrink-0 items-start justify-center bg-[#f2f3ff]">
-                  <div className="flex w-[125.06px] shrink-0 flex-col items-start px-4 py-[10px]">
+                <div className={`${AUDIT_GRID} shrink-0 items-start bg-[#f2f3ff]`}>
+                  <div className="flex min-w-0 flex-col items-start px-4 py-[10px]">
                     <span className="text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                       DATA /
                     </span>
@@ -1061,27 +1068,27 @@ export default function EstoqueBeneficiosPage() {
                       HORÁRIO
                     </span>
                   </div>
-                  <div className="flex w-[163.06px] shrink-0 flex-col items-start px-2 py-[17px]">
+                  <div className="flex min-w-0 flex-col items-start px-2 py-[17px]">
                     <span className="whitespace-nowrap text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                       TIPO DE OPERAÇÃO
                     </span>
                   </div>
-                  <div className="flex w-[196.56px] shrink-0 flex-col items-start px-2 py-[17px]">
+                  <div className="flex min-w-0 flex-col items-start px-2 py-[17px]">
                     <span className="whitespace-nowrap text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                       ITEM / BENEFÍCIO
                     </span>
                   </div>
-                  <div className="flex w-[95.23px] shrink-0 flex-col items-center px-2 py-[17px]">
+                  <div className="flex min-w-0 flex-col items-center px-2 py-[17px]">
                     <span className="whitespace-nowrap text-center text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                       QUANTIDADE
                     </span>
                   </div>
-                  <div className="flex w-[228.5px] shrink-0 flex-col items-start px-2 py-[17px]">
+                  <div className="flex min-w-0 flex-col items-start px-2 py-[17px]">
                     <span className="whitespace-nowrap text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                       ORIGEM → DESTINO
                     </span>
                   </div>
-                  <div className="flex w-[167.58px] shrink-0 flex-col items-start px-4 py-[10px]">
+                  <div className="flex min-w-0 flex-col items-start px-4 py-[10px]">
                     <span className="text-[11px] font-bold uppercase leading-3.5 tracking-[0.55px] text-[#414942]">
                       SERVIDOR
                     </span>
@@ -1097,11 +1104,11 @@ export default function EstoqueBeneficiosPage() {
                     return (
                       <div
                         key={`${entry.date}-${entry.time}-${index}`}
-                        className={`flex w-full shrink-0 items-start justify-center border-t border-[#f2f3ff] pt-px first:border-t-0 first:pt-0 ${
+                        className={`${AUDIT_GRID} shrink-0 items-start border-t border-[#f2f3ff] pt-px first:border-t-0 first:pt-0 ${
                           index > 0 ? "-mb-px" : ""
                         }`}
                       >
-                        <div className="flex w-[125.06px] shrink-0 flex-col items-start px-4 py-4">
+                        <div className="flex min-w-0 flex-col items-start px-4 py-4">
                           <span className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
                             {entry.date}
                           </span>
@@ -1109,7 +1116,7 @@ export default function EstoqueBeneficiosPage() {
                             {entry.time}
                           </span>
                         </div>
-                        <div className="flex w-[163.06px] shrink-0 flex-col items-start px-2 py-4">
+                        <div className="flex min-w-0 flex-col items-start px-2 py-4">
                           <div
                             className="flex shrink-0 items-center gap-1 rounded-[2px] px-2 py-0.5"
                             style={{ backgroundColor: badge.bg }}
@@ -1125,12 +1132,12 @@ export default function EstoqueBeneficiosPage() {
                             />
                           </div>
                         </div>
-                        <div className="flex w-[196.56px] shrink-0 flex-col items-start px-2 py-4">
+                        <div className="flex min-w-0 flex-col items-start px-2 py-4">
                           <span className="text-[12px] font-semibold leading-4 tracking-[0.24px] text-[#131b2e]">
                             {entry.item}
                           </span>
                         </div>
-                        <div className="flex w-[95.23px] shrink-0 flex-col items-center px-2 py-4">
+                        <div className="flex min-w-0 flex-col items-center px-2 py-4">
                           <span
                             className="whitespace-nowrap text-center text-[12px] font-semibold leading-4 tracking-[0.12px]"
                             style={{ color: entry.qtyColor }}
@@ -1138,12 +1145,12 @@ export default function EstoqueBeneficiosPage() {
                             {entry.qty}
                           </span>
                         </div>
-                        <div className="flex w-[228.5px] shrink-0 flex-col items-start px-2 py-4">
+                        <div className="flex min-w-0 flex-col items-start px-2 py-4">
                           <span className="text-[12px] leading-4 tracking-[0.12px] text-[#414942]">
                             {entry.route}
                           </span>
                         </div>
-                        <div className="flex w-[167.58px] shrink-0 flex-col items-start px-4 py-3">
+                        <div className="flex min-w-0 flex-col items-start px-4 py-3">
                           <span className="w-full text-[12px] font-medium leading-4 tracking-[0.12px] text-[#131b2e]">
                             {entry.server}
                           </span>

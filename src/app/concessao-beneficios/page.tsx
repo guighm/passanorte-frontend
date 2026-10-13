@@ -94,13 +94,13 @@ export default function ConcessaoBeneficiosPage() {
     <RoleShell breadcrumb="Concessão de Benefícios">
       <div className="flex w-full flex-col pb-8">
         {/* Operational Sub-Header / CAT Terminal Banner */}
-        <div className="flex w-full items-center justify-between rounded-lg bg-[#f2f3ff] p-4 shadow-[0px_1px_1px_0px_rgba(0,0,0,0.05)]">
+        <div className="flex w-full flex-col items-start justify-between gap-4 rounded-lg bg-[#f2f3ff] p-4 shadow-[0px_1px_1px_0px_rgba(0,0,0,0.05)] md:flex-row md:items-center">
           <div className="flex items-center gap-4">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-[#002f19] shadow-[0px_1px_1px_0px_rgba(0,0,0,0.05)]">
               <img src="/icons/concessao-terminal.svg" alt="" className="size-[21.67px]" />
             </div>
             <div className="flex flex-col items-start">
-              <div className="flex w-full items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <div className="rounded-[2px] bg-[#0d472b] px-2 py-[2px]">
                   <span className="text-[11px] font-semibold uppercase leading-[14px] tracking-[0.55px] text-[#9ad3ad]">
                     Terminal Ativo CAT
@@ -159,9 +159,9 @@ export default function ConcessaoBeneficiosPage() {
         </div>
 
         {/* Main Split Operation Zone */}
-        <div className="mt-6 grid w-full grid-cols-12 gap-6">
+        <div className="mt-6 grid w-full grid-cols-1 gap-6 md:grid-cols-12">
           {/* Left Column: Scanner & Input */}
-          <div className="col-span-5 flex flex-col gap-4">
+          <div className="col-span-1 flex flex-col gap-4 md:col-span-5">
             {/* Manual Code Entry Module */}
             <div className="flex w-full flex-col gap-2 rounded-lg bg-white p-4 shadow-[0px_1px_1px_0px_rgba(0,0,0,0.05)]">
               <div className="flex w-full items-center gap-2">
@@ -228,7 +228,7 @@ export default function ConcessaoBeneficiosPage() {
           </div>
 
           {/* Right Column: Verification & Redemption Execution Panel */}
-          <div className="col-span-7">
+          <div className="col-span-1 md:col-span-7">
             <div className="relative w-full overflow-clip rounded-lg bg-white px-6 pb-6 shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-2px_rgba(0,0,0,0.1)]">
               <div className="flex w-full flex-col items-center gap-4 pb-6">
                 {/* Status Chip Header */}
